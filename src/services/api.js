@@ -1,0 +1,213 @@
+/**
+ * ForestConnect AI — API Service Layer
+ * Axios-based service for communicating with the Flask backend.
+ * Includes offline queue support using localStorage.
+ */
+
+import axios from 'axios';
+
+const API_BASE = 'http://localhost:5000/api';
+
+const api = axios.create({
+  baseURL: API_BASE,
+  timeout: 3000, // Reduced from 10s to 3s for faster offline fallback
+  headers: { 'Content-Type': 'application/json' }
+});
+
+// ─── Auth Token Management ────────────────────────────────
+
+export const setAuthToken = (token) => {
+  if (token) {
+    localStorage.setItem('fc_token', token);
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    localStorage.removeItem('fc_token');
+    delete api.defaults.headers.common['Authorization'];
+  }
+};
+
+// Restore token on module load
+const savedToken = localStorage.getItem('fc_token');
+if (savedToken) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+}
+
+// ─── Offline Queue ────────────────────────────────────────
+
+const OFFLINE_QUEUE_KEY = 'fc_offline_queue';
+
+const getOfflineQueue = () => {
+  try {
+    return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+  } catch { return []; }
+};
+
+const addToOfflineQueue = (request) => {
+  const queue = getOfflineQueue();
+  queue.push({ ...request, timestamp: Date.now() });
+  localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+};
+
+export const syncOfflineQueue = async () => {
+  const queue = getOfflineQueue();
+  if (queue.length === 0) return;
+
+  const failed = [];
+  for (const req of queue) {
+    try {
+      await api({ method: req.method, url: req.url, data: req.data });
+    } catch {
+      failed.push(req);
+    }
+  }
+  localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(failed));
+  return { synced: queue.length - failed.length, failed: failed.length };
+};
+
+// ─── Cached Responses for Offline Fallback ────────────────
+
+const CACHE_PREFIX = 'fc_cache_';
+
+const cacheResponse = (key, data) => {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch { /* localStorage full */ }
+};
+
+const getCachedResponse = (key) => {
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_PREFIX + key));
+    return cached ? cached.data : null;
+  } catch { return null; }
+};
+
+// ─── API Wrapper with Offline Fallback ────────────────────
+
+const apiCall = async (method, url, data = null, cacheKey = null) => {
+  try {
+    const response = await api({ method, url, data });
+    if (cacheKey) cacheResponse(cacheKey, response.data);
+    return response.data;
+  } catch (error) {
+    // Treat network error / connection refused / timeout (no response) as offline
+    const isOffline = !navigator.onLine || !error.response;
+
+    // If offline and we have cached data, return it
+    if (isOffline && cacheKey) {
+      const cached = getCachedResponse(cacheKey);
+      if (cached) return { ...cached, _fromCache: true };
+    }
+
+    // If it's a POST/PUT and we're offline, queue it
+    if (isOffline && ['post', 'put'].includes(method.toLowerCase())) {
+      addToOfflineQueue({ method, url, data });
+      return { success: true, _queued: true, message: 'Request queued for sync' };
+    }
+
+    throw error;
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  AUTH API
+// ═══════════════════════════════════════════════════════════
+
+export const authAPI = {
+  login: async (identifier, password) => {
+    const result = await apiCall('post', '/auth/login', { identifier, password });
+    if (result.success && result.token) {
+      setAuthToken(result.token);
+    }
+    return result;
+  },
+
+  register: async (formData) => {
+    const result = await apiCall('post', '/auth/register', formData);
+    if (result.success && result.token) {
+      setAuthToken(result.token);
+    }
+    return result;
+  },
+
+  updateProfile: async (data) => {
+    return await apiCall('put', '/auth/profile', data);
+  },
+
+  logout: () => {
+    setAuthToken(null);
+    localStorage.removeItem('fc_user');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  PRODUCTS API
+// ═══════════════════════════════════════════════════════════
+
+export const productsAPI = {
+  getAll: async (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return await apiCall('get', `/products?${params}`, null, 'products');
+  },
+
+  getById: async (productId) => {
+    return await apiCall('get', `/products/${productId}`, null, `product_${productId}`);
+  },
+
+  add: async (productData) => {
+    return await apiCall('post', '/products', productData);
+  },
+
+  update: async (productId, productData) => {
+    return await apiCall('put', `/products/${productId}`, productData);
+  },
+
+  delete: async (productId) => {
+    const numericId = String(productId).replace('p', '');
+    return await apiCall('delete', `/products/${numericId}`);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  SCHEMES API
+// ═══════════════════════════════════════════════════════════
+
+export const schemesAPI = {
+  getAll: async (occupation = 'all') => {
+    return await apiCall('get', `/schemes?occupation=${occupation}`, null, 'schemes');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  PREDICTION API
+// ═══════════════════════════════════════════════════════════
+
+export const predictionAPI = {
+  predict: async (productType, quantity, month) => {
+    return await apiCall('post', '/predict', { productType, quantity, month });
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  WEATHER API
+// ═══════════════════════════════════════════════════════════
+
+export const weatherAPI = {
+  get: async (lat = '19.08', lon = '78.27') => {
+    return await apiCall('get', `/weather?lat=${lat}&lon=${lon}`, null, 'weather');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  HEALTH CHECK
+// ═══════════════════════════════════════════════════════════
+
+export const checkBackendHealth = async () => {
+  try {
+    const response = await api.get('/health', { timeout: 3000 });
+    return response.data.status === 'ok';
+  } catch {
+    return false;
+  }
+};
+
+export default api;

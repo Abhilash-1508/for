@@ -1,0 +1,104 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
+import { MdLocationOn, MdAccountCircle, MdTrendingUp, MdPhone } from 'react-icons/md';
+
+const ProductCard = ({ product }) => {
+  const { t } = useLanguage();
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full group">
+      
+      {/* Visual Product representation (SVG gradient or custom user-uploaded image) */}
+      <div 
+        className={`h-48 relative flex items-center justify-center p-6 text-white overflow-hidden ${!product.image ? 'bg-gradient-to-br ' + (product.gradient || 'from-emerald-500 to-emerald-700') : ''}`}
+        style={product.image ? { backgroundImage: `url(${product.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+      >
+        <div className={`absolute inset-0 bg-black/10 transition-opacity duration-300 ${product.image ? 'bg-black/35 group-hover:bg-black/45' : 'opacity-0 group-hover:opacity-100'}`}></div>
+        <div className="text-center z-10">
+          {!product.image && (
+            <span className="text-4xl filter drop-shadow">
+              {product.category === 'honey' && '🍯'}
+              {product.category === 'bamboo' && '🎋'}
+              {product.category === 'fruits' && '🍒'}
+              {product.category === 'herbs' && '🌿'}
+              {product.category === 'handicrafts' && '🧺'}
+            </span>
+          )}
+          <h4 className="font-bold text-lg mt-2 tracking-tight drop-shadow font-display">{product.name}</h4>
+        </div>
+        
+        {/* Floating Tag */}
+        {product.tag && (
+          <span className="absolute top-4 left-4 bg-white/95 text-forest-green font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+            {product.tag}
+          </span>
+        )}
+
+        {/* Floating Harvest Month Tag */}
+        <span className="absolute top-4 right-4 bg-black/25 text-white backdrop-blur-sm text-[10px] font-semibold px-2.5 py-1 rounded-full">
+          {product.harvestMonth}
+        </span>
+      </div>
+
+      {/* Product Content Details */}
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+        <div className="space-y-2">
+          {/* Seller and Location */}
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold">
+            <MdAccountCircle className="h-4 w-4 text-forest-green flex-shrink-0" />
+            <span className="truncate">{product.sellerName}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+            <MdLocationOn className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+            <span className="truncate">{product.location}</span>
+          </div>
+
+          {/* Quantity pill */}
+          <div className="pt-1">
+            <span className="bg-gray-100 text-gray-700 font-bold text-xs px-2.5 py-1 rounded-lg">
+              {t('quantity')}: {product.quantity}
+            </span>
+          </div>
+        </div>
+
+        {/* Pricing Layout */}
+        <div className="bg-sage-accent/40 rounded-2xl p-3 border border-emerald-100/30 grid grid-cols-2 gap-2 text-center">
+          <div>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{t('marketPrice')}</p>
+            <p className="text-sm font-extrabold text-gray-700">₹{product.marketPrice}</p>
+          </div>
+          <div className="border-l border-emerald-100/50 flex flex-col justify-center items-center">
+            <div className="flex items-center gap-0.5 text-forest-green">
+              <MdTrendingUp className="h-3.5 w-3.5" />
+              <p className="text-[10px] font-bold uppercase tracking-wide">{t('predictedPrice')}</p>
+            </div>
+            <p className="text-sm font-extrabold text-forest-green">₹{product.predictedPrice}</p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-5 gap-2 pt-1">
+          <Link
+            to={`/product/${product.id}`}
+            className="col-span-3 bg-forest-green hover:bg-forest-dark text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
+          >
+            {t('viewDetails')}
+          </Link>
+          <a
+            href={`tel:${product.sellerPhone}`}
+            className="col-span-2 border border-emerald-200 text-forest-green hover:bg-emerald-50 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition-colors"
+            title={t('contactSeller')}
+          >
+            <MdPhone className="h-4 w-4" />
+            <span>Call</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  );
+};
+
+export default ProductCard;
