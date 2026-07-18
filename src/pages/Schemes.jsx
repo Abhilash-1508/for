@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { schemesAPI } from '../services/api';
+import { SCHEMES } from '../data/mockData';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -27,12 +28,17 @@ const Schemes = () => {
     setLoading(true);
     try {
       const result = await schemesAPI.getAll();
-      if (result.success) {
+      if (result.success && result.schemes && result.schemes.length > 0) {
         setAllSchemes(result.schemes);
         setFilteredSchemes(result.schemes);
+      } else {
+        setAllSchemes(SCHEMES);
+        setFilteredSchemes(SCHEMES);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch schemes, using mock data:", err);
+      setAllSchemes(SCHEMES);
+      setFilteredSchemes(SCHEMES);
     } finally {
       setLoading(false);
     }
@@ -42,14 +48,35 @@ const Schemes = () => {
     e.preventDefault();
     setHasSearched(true);
     
-    // Simulate smart matching logic
-    let matches = [...allSchemes];
+    const occ = occupation.trim().toLowerCase();
+    const st = state.trim().toLowerCase();
     
-    if (occupation === 'farmer') {
-      matches = allSchemes.filter(s => s.category === 'agriculture' || s.category === 'economic');
-    } else if (occupation === 'artisan') {
-      matches = allSchemes.filter(s => s.id === 's1' || s.id === 's3' || s.id === 1 || s.id === 3);
-    }
+    let matches = allSchemes.filter(scheme => {
+      if (!scheme) return false;
+      const elg = String(scheme.eligibility).toLowerCase();
+      
+      // 1. Occupation Match
+      let matchesOcc = false;
+      if (occ === 'gatherer') {
+        matchesOcc = ['livelihood', 'economic', 'welfare'].includes(scheme.category);
+      } else if (occ === 'farmer') {
+        matchesOcc = ['agriculture', 'economic'].includes(scheme.category);
+      } else if (occ === 'artisan') {
+        matchesOcc = ['livelihood', 'agriculture'].includes(scheme.category);
+      } else {
+        matchesOcc = true;
+      }
+      
+      // 2. State Match
+      let matchesState = true;
+      if (st && st !== 'all') {
+        if (st.includes('telangana')) {
+          matchesState = elg.includes('telangana') || elg.includes('tribal') || elg.includes('gatherer') || elg.includes('all') || elg.includes('traditional');
+        }
+      }
+      
+      return matchesOcc && matchesState;
+    });
     
     setFilteredSchemes(matches);
   };

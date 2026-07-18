@@ -25,7 +25,7 @@ const Prediction = () => {
     try {
       // Try real ML API first
       const result = await predictionAPI.predict(productType, parseInt(quantity) || 1, month);
-      if (result.success && result.prediction) {
+      if (result && result.success && result.prediction) {
         const pred = result.prediction;
         setPredictionResult({
           price: pred.predicted_price_display || `₹${pred.predicted_price}`,
@@ -39,8 +39,11 @@ const Prediction = () => {
         setSource('ml');
         setLoading(false);
         return;
+      } else {
+        throw new Error("Prediction API failed or returned empty data");
       }
-    } catch {
+    } catch (err) {
+      console.warn("Prediction API failed, using local mock fallback:", err);
       // Fall through to mock
     }
 

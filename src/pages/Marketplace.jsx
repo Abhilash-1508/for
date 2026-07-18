@@ -25,7 +25,7 @@ const Marketplace = () => {
     setLoading(true);
     try {
       const result = await productsAPI.getAll();
-      if (result.success && result.products && result.products.length > 0) {
+      if (result.success && result.products && Array.isArray(result.products)) {
         setProducts(result.products);
       } else {
         // Fallback to mock data when backend is offline or returns no products
@@ -39,11 +39,14 @@ const Marketplace = () => {
     }
   };
 
+  const productsArray = Array.isArray(products) ? products : [];
+
   // Filter unique locations from products list for location dropdown
-  const uniqueLocations = ['all', ...new Set(products.map(p => {
-    if (p.location && p.location.includes('Adilabad')) return 'Adilabad';
-    if (p.location && p.location.includes('Bhadrachalam')) return 'Bhadrachalam';
-    return p.location || 'Unknown';
+  const uniqueLocations = ['all', ...new Set(productsArray.filter(p => p && p.location).map(p => {
+    const loc = String(p.location);
+    if (loc.includes('Adilabad')) return 'Adilabad';
+    if (loc.includes('Bhadrachalam')) return 'Bhadrachalam';
+    return loc || 'Unknown';
   }))];
 
   const handleResetFilters = () => {
@@ -54,18 +57,24 @@ const Marketplace = () => {
   };
 
   // Filter and Sort Logic
-  const filteredProducts = products.filter(product => {
-    const searchTarget = `${product.name} ${product.description} ${product.seller_name || product.sellerName}`.toLowerCase();
+  const filteredProducts = productsArray.filter(product => {
+    if (!product) return false;
+    const name = product.name || '';
+    const desc = product.description || '';
+    const seller = product.sellerName || product.seller_name || '';
+    const searchTarget = `${name} ${desc} ${seller}`.toLowerCase();
+    
     const matchesSearch = searchTarget.includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    const matchesLocation = selectedLocation === 'all' || (product.location && product.location.includes(selectedLocation));
+    const matchesLocation = selectedLocation === 'all' || (product.location && String(product.location).includes(selectedLocation));
     
     return matchesSearch && matchesCategory && matchesLocation;
   }).sort((a, b) => {
-    const priceA = a.market_price || a.marketPrice;
-    const priceB = b.market_price || b.marketPrice;
-    const predA = a.predicted_price || a.predictedPrice;
-    const predB = b.predicted_price || b.predictedPrice;
+    if (!a || !b) return 0;
+    const priceA = parseFloat(a.marketPrice || a.market_price) || 0;
+    const priceB = parseFloat(b.marketPrice || b.market_price) || 0;
+    const predA = parseFloat(a.predictedPrice || a.predicted_price) || 0;
+    const predB = parseFloat(b.predictedPrice || b.predicted_price) || 0;
 
     if (sortOption === 'price-low') {
       return priceA - priceB;

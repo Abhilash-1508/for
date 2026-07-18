@@ -4,6 +4,8 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { OfflineProvider } from './context/OfflineContext';
 import OfflineBanner from './components/OfflineBanner';
+import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
 import Home from './pages/Home';
@@ -35,19 +37,28 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               
-              {/* Logged In Phase 2 Routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/add-product" element={<AddProduct />} />
-              <Route path="/edit-product/:id" element={<EditProduct />} />
-              <Route path="/my-products" element={<MyProducts />} />
-              <Route path="/schemes" element={<Schemes />} />
-              <Route path="/prediction" element={<Prediction />} />
-              <Route path="/weather" element={<Weather />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/healthcare" element={<Healthcare />} />
-              <Route path="/education" element={<Education />} />
+              {/* Logged In Phase 2 Routes (Protected) */}
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route 
+                path="/marketplace" 
+                element={
+                  <ProtectedRoute>
+                    <ErrorBoundary>
+                      <Marketplace />
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/product/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+              <Route path="/add-product" element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
+              <Route path="/edit-product/:id" element={<ProtectedRoute><EditProduct /></ProtectedRoute>} />
+              <Route path="/my-products" element={<ProtectedRoute><MyProducts /></ProtectedRoute>} />
+              <Route path="/schemes" element={<ProtectedRoute><Schemes /></ProtectedRoute>} />
+              <Route path="/prediction" element={<ProtectedRoute><Prediction /></ProtectedRoute>} />
+              <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/healthcare" element={<ProtectedRoute><Healthcare /></ProtectedRoute>} />
+              <Route path="/education" element={<ProtectedRoute><Education /></ProtectedRoute>} />
             </Routes>
           </Router>
         </OfflineProvider>

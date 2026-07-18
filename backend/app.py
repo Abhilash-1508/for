@@ -404,18 +404,27 @@ def delete_product(product_id):
 
 @app.route('/api/schemes', methods=['GET'])
 def get_schemes():
-    """Get all government schemes, optionally filtered by occupation."""
-    occupation = request.args.get('occupation', 'all')
+    """Get all government schemes, optionally filtered by occupation and state."""
+    occupation = request.args.get('occupation', 'all').strip().lower()
+    state = request.args.get('state', 'all').strip().lower()
 
     conn = get_db()
     rows = rows_to_list(conn.execute('SELECT * FROM schemes').fetchall())
     conn.close()
 
-    # Basic AI-style filtering based on occupation
-    if occupation == 'farmer':
+    # Basic normalization & filtering based on occupation
+    if occupation in ('farmer', 'bamboo farmer', 'amla farmer'):
         rows = [s for s in rows if s['category'] in ('agriculture', 'economic')]
-    elif occupation == 'artisan':
+    elif occupation in ('artisan', 'handicrafts artisan'):
         rows = [s for s in rows if s['category'] in ('livelihood', 'agriculture')]
+    elif occupation in ('gatherer', 'forest gatherer'):
+        rows = [s for s in rows if s['category'] in ('livelihood', 'economic', 'welfare')]
+
+    # Filter by state eligibility if specified
+    if state != 'all':
+        # Ensure regional programs are matched (e.g., GCC/Telangana specifics)
+        # Note: Seeding contains national schemes, which are always kept
+        rows = [s for s in rows if 'telangana' in s['eligibility'].lower() or 'all' in s['eligibility'].lower() or 'tribal' in s['eligibility'].lower() or 'state' in s['eligibility'].lower() or 'national' in s['eligibility'].lower()]
 
     schemes = []
     for row in rows:

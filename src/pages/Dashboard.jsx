@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { weatherAPI, schemesAPI } from '../services/api';
+import { weatherAPI, schemesAPI, productsAPI } from '../services/api';
+import { WEATHER_ADVISORY, SCHEMES } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
@@ -23,22 +24,58 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [weather, setWeather] = useState(null);
   const [schemes, setSchemes] = useState([]);
+  const [activeListingsCount, setActiveListingsCount] = useState(user ? user.activeUploadsCount : 0);
 
   useEffect(() => {
-    const fetchData = async () => {
+    if (!user) return;
+
+    const fetchWeather = async () => {
       try {
-        const [weatherRes, schemesRes] = await Promise.all([
-          weatherAPI.get(),
-          schemesAPI.getAll()
-        ]);
-        if (weatherRes.success) setWeather(weatherRes.weather);
-        if (schemesRes.success) setSchemes(schemesRes.schemes);
+        const res = await weatherAPI.get();
+        if (res.success && res.weather) {
+          setWeather(res.weather);
+        } else {
+          setWeather(WEATHER_ADVISORY);
+        }
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching weather:', err);
+        setWeather(WEATHER_ADVISORY);
       }
     };
-    fetchData();
-  }, []);
+
+    const fetchSchemes = async () => {
+      try {
+        const res = await schemesAPI.getAll();
+        if (res.success && res.schemes) {
+          setSchemes(res.schemes);
+        } else {
+          setSchemes(SCHEMES);
+        }
+      } catch (err) {
+        console.error('Error fetching schemes:', err);
+        setSchemes(SCHEMES);
+      }
+    };
+
+    const fetchListingsCount = async () => {
+      try {
+        const res = await productsAPI.getAll();
+        if (res.success && res.products) {
+          const mine = res.products.filter(p =>
+            (p.seller_name || p.sellerName) === user.name ||
+            (p.seller_id && String(p.seller_id) === String(user.id))
+          );
+          setActiveListingsCount(mine.length);
+        }
+      } catch (err) {
+        console.error('Error fetching listings count:', err);
+      }
+    };
+
+    fetchWeather();
+    fetchSchemes();
+    fetchListingsCount();
+  }, [user]);
 
   // Redirect if not logged in (hooks must be at top level)
   React.useEffect(() => {
@@ -79,7 +116,7 @@ const Dashboard = () => {
               
               <div className="flex items-center gap-4 bg-white/10 px-4 py-2.5 rounded-2xl border border-white/10 text-xs font-semibold">
                 <span className="text-emerald-200">Active Listings:</span>
-                <span className="text-base font-extrabold">{user.activeUploadsCount}</span>
+                <span className="text-base font-extrabold">{activeListingsCount}</span>
               </div>
             </div>
           </div>

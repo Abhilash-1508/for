@@ -154,7 +154,47 @@ export const productsAPI = {
   },
 
   add: async (productData) => {
-    return await apiCall('post', '/products', productData);
+    const result = await apiCall('post', '/products', productData);
+    
+    // Update local cache of products so it is synchronized immediately
+    if (result.success || result._queued) {
+      let cached = getCachedResponse('products');
+      if (!cached) {
+        cached = { success: true, products: [] };
+      }
+      if (cached && Array.isArray(cached.products)) {
+        let currentUser = null;
+        try {
+          currentUser = JSON.parse(localStorage.getItem('fc_user'));
+        } catch {}
+        
+        const newProduct = {
+          id: result.productId ? `p${result.productId}` : `p_temp_${Date.now()}`,
+          name: productData.name,
+          category: productData.category,
+          sellerName: currentUser ? currentUser.name : 'Raju Mandavi',
+          sellerPhone: currentUser ? currentUser.mobile : '',
+          seller_id: currentUser ? currentUser.id : null,
+          location: productData.location || (currentUser ? `${currentUser.village}, ${currentUser.district}` : ''),
+          quantity: productData.quantity,
+          marketPrice: productData.marketPrice,
+          predictedPrice: productData.predictedPrice || Math.round(productData.marketPrice * 1.15),
+          description: productData.description || '',
+          gradient: productData.gradient || (
+            productData.category === 'honey' ? 'from-amber-400 to-amber-600' :
+            productData.category === 'bamboo' ? 'from-green-500 to-emerald-700' :
+            productData.category === 'fruits' ? 'from-lime-400 to-lime-600' :
+            productData.category === 'herbs' ? 'from-emerald-800 to-teal-950' : 'from-emerald-500 to-emerald-700'
+          ),
+          tag: result._queued ? 'Offline Pending' : 'New Listing',
+          harvestMonth: productData.harvestMonth || 'July',
+          expectedDemand: 'Medium'
+        };
+        cached.products = [newProduct, ...cached.products];
+        cacheResponse('products', cached);
+      }
+    }
+    return result;
   },
 
   update: async (productId, productData) => {
@@ -172,8 +212,8 @@ export const productsAPI = {
 // ═══════════════════════════════════════════════════════════
 
 export const schemesAPI = {
-  getAll: async (occupation = 'all') => {
-    return await apiCall('get', `/schemes?occupation=${occupation}`, null, 'schemes');
+  getAll: async (occupation = 'all', state = 'all') => {
+    return await apiCall('get', `/schemes?occupation=${occupation}&state=${state}`, null, 'schemes');
   }
 };
 
