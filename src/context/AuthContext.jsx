@@ -32,13 +32,21 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Check local storage for persistent session
-    const savedUser = localStorage.getItem('fc_user');
-    const savedToken = localStorage.getItem('fc_token');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      if (savedToken) {
-        setAuthToken(savedToken);
+    try {
+      const savedUser = localStorage.getItem('fc_user');
+      const savedToken = localStorage.getItem('fc_token');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+        if (savedToken) {
+          setAuthToken(savedToken);
+        }
+      } else {
+        // Initialize default active session for seamless demo experience
+        setUser(MOCK_USER);
+        localStorage.setItem('fc_user', JSON.stringify(MOCK_USER));
       }
+    } catch {
+      setUser(MOCK_USER);
     }
     setLoading(false);
   }, []);

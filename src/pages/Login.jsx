@@ -17,19 +17,23 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
-    const result = login(identifier, password);
-    if (result.success) {
-      // If user language is registered as 'te', switch language context
-      if (result.user.language) {
-        setLanguage(result.user.language);
+    try {
+      const result = await login(identifier, password);
+      if (result && result.success) {
+        if (result.user && result.user.language) {
+          setLanguage(result.user.language);
+        }
+        navigate('/dashboard');
+      } else {
+        setError(result?.message || 'Login failed. Please check your credentials.');
       }
-      navigate('/dashboard');
-    } else {
-      setError(result.message);
+    } catch (err) {
+      console.error('Login submit error:', err);
+      setError('Login failed. Please try again.');
     }
   };
 

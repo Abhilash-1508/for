@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -11,7 +10,6 @@ import { MdEdit, MdOutlinePhotoCamera, MdInfo, MdArrowBack } from 'react-icons/m
 
 const EditProduct = () => {
   const { id } = useParams();
-  const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -47,6 +45,7 @@ const EditProduct = () => {
           navigate('/my-products');
         }
       } catch (err) {
+        console.error('Error fetching product:', err);
         alert('Failed to load product details.');
         navigate('/my-products');
       } finally {
@@ -77,6 +76,7 @@ const EditProduct = () => {
         }, 2000);
       }
     } catch (err) {
+      console.error('Error updating product:', err);
       alert('Failed to update product. Please try again or check connection.');
     }
   };

@@ -5,27 +5,40 @@ import { MdLocationOn, MdAccountCircle, MdTrendingUp, MdPhone } from 'react-icon
 
 const ProductCard = ({ product }) => {
   const { t } = useLanguage();
+  if (!product) return null;
+
+  const name = product.name || 'Forest Product';
+  const category = product.category || 'honey';
+  const sellerName = product.sellerName || product.seller_name || 'Tribal Gatherer';
+  const sellerPhone = product.sellerPhone || product.seller_phone || '+91 98480 22310';
+  const location = product.location || 'Adilabad Forest Region';
+  const quantity = product.quantity || 'Available';
+  const marketPrice = product.marketPrice ?? product.market_price ?? 0;
+  const predictedPrice = product.predictedPrice ?? product.predicted_price ?? Math.round(marketPrice * 1.15);
+  const harvestMonth = product.harvestMonth || product.harvest_month || 'July';
+  const image = product.image || null;
+  const gradient = product.gradient || 'from-emerald-500 to-emerald-700';
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full group">
       
       {/* Visual Product representation (SVG gradient or custom user-uploaded image) */}
       <div 
-        className={`h-48 relative flex items-center justify-center p-6 text-white overflow-hidden ${!product.image ? 'bg-gradient-to-br ' + (product.gradient || 'from-emerald-500 to-emerald-700') : ''}`}
-        style={product.image ? { backgroundImage: `url(${product.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        className={`h-48 relative flex items-center justify-center p-6 text-white overflow-hidden ${!image ? 'bg-gradient-to-br ' + gradient : ''}`}
+        style={image ? { backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
       >
-        <div className={`absolute inset-0 bg-black/10 transition-opacity duration-300 ${product.image ? 'bg-black/35 group-hover:bg-black/45' : 'opacity-0 group-hover:opacity-100'}`}></div>
+        <div className={`absolute inset-0 bg-black/10 transition-opacity duration-300 ${image ? 'bg-black/35 group-hover:bg-black/45' : 'opacity-0 group-hover:opacity-100'}`}></div>
         <div className="text-center z-10">
-          {!product.image && (
+          {!image && (
             <span className="text-4xl filter drop-shadow">
-              {product.category === 'honey' && '🍯'}
-              {product.category === 'bamboo' && '🎋'}
-              {product.category === 'fruits' && '🍒'}
-              {product.category === 'herbs' && '🌿'}
-              {product.category === 'handicrafts' && '🧺'}
+              {category === 'honey' && '🍯'}
+              {category === 'bamboo' && '🎋'}
+              {category === 'fruits' && '🍒'}
+              {category === 'herbs' && '🌿'}
+              {category === 'handicrafts' && '🧺'}
             </span>
           )}
-          <h4 className="font-bold text-lg mt-2 tracking-tight drop-shadow font-display">{product.name}</h4>
+          <h4 className="font-bold text-lg mt-2 tracking-tight drop-shadow font-display">{name}</h4>
         </div>
         
         {/* Floating Tag */}
@@ -37,7 +50,7 @@ const ProductCard = ({ product }) => {
 
         {/* Floating Harvest Month Tag */}
         <span className="absolute top-4 right-4 bg-black/25 text-white backdrop-blur-sm text-[10px] font-semibold px-2.5 py-1 rounded-full">
-          {product.harvestMonth}
+          {harvestMonth}
         </span>
       </div>
 
@@ -47,18 +60,18 @@ const ProductCard = ({ product }) => {
           {/* Seller and Location */}
           <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold">
             <MdAccountCircle className="h-4 w-4 text-forest-green flex-shrink-0" />
-            <span className="truncate">{product.sellerName}</span>
+            <span className="truncate">{sellerName}</span>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
             <MdLocationOn className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-            <span className="truncate">{product.location}</span>
+            <span className="truncate">{location}</span>
           </div>
 
           {/* Quantity pill */}
           <div className="pt-1">
             <span className="bg-gray-100 text-gray-700 font-bold text-xs px-2.5 py-1 rounded-lg">
-              {t('quantity')}: {product.quantity}
+              {t('quantity')}: {quantity}
             </span>
           </div>
         </div>
@@ -67,14 +80,14 @@ const ProductCard = ({ product }) => {
         <div className="bg-sage-accent/40 rounded-2xl p-3 border border-emerald-100/30 grid grid-cols-2 gap-2 text-center">
           <div>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{t('marketPrice')}</p>
-            <p className="text-sm font-extrabold text-gray-700">₹{product.marketPrice}</p>
+            <p className="text-sm font-extrabold text-gray-700">₹{marketPrice}</p>
           </div>
           <div className="border-l border-emerald-100/50 flex flex-col justify-center items-center">
             <div className="flex items-center gap-0.5 text-forest-green">
               <MdTrendingUp className="h-3.5 w-3.5" />
               <p className="text-[10px] font-bold uppercase tracking-wide">{t('predictedPrice')}</p>
             </div>
-            <p className="text-sm font-extrabold text-forest-green">₹{product.predictedPrice}</p>
+            <p className="text-sm font-extrabold text-forest-green">₹{predictedPrice}</p>
           </div>
         </div>
 
@@ -87,7 +100,7 @@ const ProductCard = ({ product }) => {
             {t('viewDetails')}
           </Link>
           <a
-            href={`tel:${product.sellerPhone}`}
+            href={`tel:${sellerPhone}`}
             className="col-span-2 border border-emerald-200 text-forest-green hover:bg-emerald-50 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition-colors"
             title={t('contactSeller')}
           >

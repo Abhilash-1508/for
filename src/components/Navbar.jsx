@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { GiOakLeaf } from 'react-icons/gi';
-import { MdLanguage, MdDashboard, MdLogout } from 'react-icons/md';
+import { MdDashboard, MdLogout } from 'react-icons/md';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();

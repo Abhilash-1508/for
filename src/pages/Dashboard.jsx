@@ -13,7 +13,6 @@ import {
   MdTrendingUp, 
   MdGavel, 
   MdStorefront, 
-  MdMic, 
   MdAccountBox, 
   MdArrowForward 
 } from 'react-icons/md';
@@ -22,7 +21,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const [weather, setWeather] = useState(null);
+  const [weather, setWeather] = useState(WEATHER_ADVISORY);
   const [schemes, setSchemes] = useState([]);
   const [activeListingsCount, setActiveListingsCount] = useState(user ? user.activeUploadsCount : 0);
 

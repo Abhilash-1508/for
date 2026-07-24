@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -18,11 +18,8 @@ const MyProducts = () => {
   const [userProducts, setUserProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) fetchMyProducts();
-  }, [user]);
-
-  const fetchMyProducts = async () => {
+  const fetchMyProducts = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const result = await productsAPI.getAll();
@@ -38,13 +35,17 @@ const MyProducts = () => {
         setUserProducts(PRODUCTS.slice(0, 2));
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching my products:', err);
       // Fallback to demo mock products
       setUserProducts(PRODUCTS.slice(0, 2));
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) fetchMyProducts();
+  }, [user, fetchMyProducts]);
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this listing?")) {
@@ -56,6 +57,7 @@ const MyProducts = () => {
           updateProfile({ activeUploadsCount: Math.max(0, user.activeUploadsCount - 1) });
         }
       } catch (err) {
+        console.error('Error deleting product:', err);
         alert("Failed to delete product.");
       }
     }

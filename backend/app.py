@@ -6,6 +6,8 @@ REST API endpoints for authentication, products, schemes, predictions, and weath
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import bcrypt
+import base64
+import hmac
 import json
 import hashlib
 import time
@@ -22,25 +24,63 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', '')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'forestconnect-ai-2026-secret')
 
-# ─── Simple Token Auth ───────────────────────────────────────
-# Using HMAC-based tokens (lightweight alternative to JWT for a college project)
+# ─── Stateless JWT Authentication ────────────────────────────
 
-def generate_token(user_id):
-    """Generate a simple auth token."""
-    payload = f"{user_id}:{int(time.time())}:{SECRET_KEY}"
-    token = hashlib.sha256(payload.encode()).hexdigest()
-    # Store token -> user_id mapping in memory (in production, use Redis)
-    active_tokens[token] = user_id
-    return token
+def base64url_encode(data: bytes) -> str:
+    """Encode bytes to Base64URL string without padding."""
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
 
-active_tokens = {}
+def base64url_decode(data_str: str) -> bytes:
+    """Decode Base64URL string back to bytes with automatic padding."""
+    padding = '=' * (4 - (len(data_str) % 4))
+    return base64.urlsafe_b64decode((data_str + padding).encode('utf-8'))
+
+def generate_token(user_id, expires_in=7 * 24 * 3600):
+    """Generate a stateless HMAC-SHA256 JWT auth token (7 days default)."""
+    header = {"alg": "HS256", "typ": "JWT"}
+    payload = {
+        "user_id": user_id,
+        "exp": int(time.time()) + expires_in
+    }
+
+    header_b64 = base64url_encode(json.dumps(header).encode('utf-8'))
+    payload_b64 = base64url_encode(json.dumps(payload).encode('utf-8'))
+
+    signing_input = f"{header_b64}.{payload_b64}".encode('utf-8')
+    signature = hmac.new(SECRET_KEY.encode('utf-8'), signing_input, hashlib.sha256).digest()
+    signature_b64 = base64url_encode(signature)
+
+    return f"{header_b64}.{payload_b64}.{signature_b64}"
+
+def verify_token(token_str):
+    """Verify stateless JWT token signature and expiration. Returns user_id or None."""
+    try:
+        parts = token_str.split('.')
+        if len(parts) != 3:
+            return None
+
+        header_b64, payload_b64, signature_b64 = parts
+        signing_input = f"{header_b64}.{payload_b64}".encode('utf-8')
+        expected_sig = hmac.new(SECRET_KEY.encode('utf-8'), signing_input, hashlib.sha256).digest()
+        actual_sig = base64url_decode(signature_b64)
+
+        if not hmac.compare_digest(expected_sig, actual_sig):
+            return None
+
+        payload = json.loads(base64url_decode(payload_b64).decode('utf-8'))
+        if payload.get('exp', 0) < time.time():
+            return None  # Expired
+
+        return payload.get('user_id')
+    except Exception:
+        return None
 
 def get_current_user():
-    """Extract user from Authorization header."""
+    """Extract user from Authorization header using stateless JWT verification."""
     auth_header = request.headers.get('Authorization', '')
     if auth_header.startswith('Bearer '):
         token = auth_header[7:]
-        user_id = active_tokens.get(token)
+        user_id = verify_token(token)
         if user_id:
             conn = get_db()
             user = row_to_dict(conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone())
@@ -213,7 +253,8 @@ def get_products():
             'gradient': row['gradient'],
             'tag': row['tag'],
             'harvestMonth': row['harvest_month'],
-            'expectedDemand': row['expected_demand']
+            'expectedDemand': row['expected_demand'],
+            'image': row['image'] if 'image' in row.keys() else ''
         })
 
     return jsonify({'success': True, 'products': products})
@@ -252,8 +293,8 @@ def add_product():
     conn = get_db()
     cursor = conn.execute('''
         INSERT INTO products (name, category, seller_id, seller_name, seller_phone, location,
-            quantity, market_price, predicted_price, description, gradient, tag, harvest_month, expected_demand)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            quantity, market_price, predicted_price, description, gradient, tag, harvest_month, expected_demand, image)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         data.get('name', ''),
         category,
@@ -268,7 +309,8 @@ def add_product():
         gradient_map.get(category, 'from-emerald-500 to-emerald-700'),
         'New Listing',
         data.get('harvestMonth', ''),
-        prediction.get('demand_level', 'Medium').split(' ')[0]
+        prediction.get('demand_level', 'Medium').split(' ')[0],
+        data.get('image', '')
     ))
     conn.commit()
 
@@ -307,7 +349,8 @@ def get_product(product_id):
         'gradient': row['gradient'],
         'tag': row['tag'],
         'harvestMonth': row['harvest_month'],
-        'expectedDemand': row['expected_demand']
+        'expectedDemand': row['expected_demand'],
+        'image': row['image'] if 'image' in row.keys() else ''
     }
 
     return jsonify({'success': True, 'product': product})

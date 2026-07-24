@@ -54,6 +54,7 @@ def init_db():
             tag TEXT DEFAULT '',
             harvest_month TEXT DEFAULT '',
             expected_demand TEXT DEFAULT 'Medium',
+            image TEXT DEFAULT '',
             status TEXT DEFAULT 'active',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (seller_id) REFERENCES users(id)
@@ -81,6 +82,11 @@ def init_db():
             recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     ''')
+
+    try:
+        cursor.execute("ALTER TABLE products ADD COLUMN image TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()

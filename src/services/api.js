@@ -6,7 +6,9 @@
 
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE) 
+  ? import.meta.env.VITE_API_BASE 
+  : 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -188,10 +190,15 @@ export const productsAPI = {
           ),
           tag: result._queued ? 'Offline Pending' : 'New Listing',
           harvestMonth: productData.harvestMonth || 'July',
-          expectedDemand: 'Medium'
+          expectedDemand: 'Medium',
+          image: productData.image || null
         };
         cached.products = [newProduct, ...cached.products];
-        cacheResponse('products', cached);
+        try {
+          cacheResponse('products', cached);
+        } catch (e) {
+          console.warn('LocalStorage full, skipping cache for large image product:', e);
+        }
       }
     }
     return result;

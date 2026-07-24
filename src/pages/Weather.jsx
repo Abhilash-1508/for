@@ -5,12 +5,12 @@ import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
-import { MdCloud, MdOpacity, MdAir, MdInfo, MdWarning, MdRefresh } from 'react-icons/md';
+import { MdOpacity, MdAir, MdWarning, MdRefresh } from 'react-icons/md';
 
 const Weather = () => {
   const { t, language } = useLanguage();
-  const [weatherData, setWeatherData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [weatherData, setWeatherData] = useState(WEATHER_ADVISORY);
+  const [loading, setLoading] = useState(false);
   const [source, setSource] = useState('offline');
 
   useEffect(() => {

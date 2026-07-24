@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
-import { MdGavel, MdFilterList, MdSearch, MdInfo, MdOutlineArrowForward } from 'react-icons/md';
+import { MdGavel, MdFilterList, MdInfo, MdOutlineArrowForward } from 'react-icons/md';
 
 const Schemes = () => {
   const { t, language } = useLanguage();

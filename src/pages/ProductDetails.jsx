@@ -8,7 +8,6 @@ import Sidebar from '../components/Sidebar';
 import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { 
   MdArrowBack, 
-  MdLocationOn, 
   MdAccountCircle, 
   MdPhone, 
   MdTrendingUp, 
@@ -19,7 +18,7 @@ import {
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -87,11 +86,11 @@ const ProductDetails = () => {
           {/* Back Trigger */}
           <div>
             <button
-              onClick={() => navigate('/marketplace')}
+              onClick={() => navigate(-1)}
               className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-forest-green transition-colors"
             >
               <MdArrowBack className="h-4 w-4" />
-              <span>{t('backToMarketplace')}</span>
+              <span>Back</span>
             </button>
           </div>
 

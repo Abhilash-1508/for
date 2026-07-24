@@ -52,8 +52,8 @@ const VoiceAssistantWidget = () => {
     if (lowerText.includes('weather') || lowerText.includes('వాతావరణ') || lowerText.includes('rain') || lowerText.includes('వర్షం')) {
       return {
         response: language === 'te'
-          ? 'నేటి వాతావరణం: జల్లులు పడే అవకాశం ఉంది. మూలికలను వర్షం నుండి రక్షించండి.'
-          : "Today's weather advisory: scattered showers expected. Keep harvested herbs under cover.",
+          ? 'నేటి వాతావరణ సమాచారం: 29 డిగ్రీల ఉష్ణోగ్రత, జల్లులు కురిసే అవకాశం ఉంది. సేకరణ ఉత్పత్తులను బూజు పట్టకుండా కప్పి ఉంచండి. వాతావరణ పేజీకి మళ్లిస్తున్నాను.'
+          : "Today's weather in Adilabad is 29°C with scattered showers. High humidity expected — keep dried Mahua flowers and herbs covered. Opening weather report.",
         action: () => navigate('/weather')
       };
     }

@@ -51,6 +51,7 @@ const AddProduct = () => {
         }, 2000);
       }
     } catch (err) {
+      console.error('Error adding product:', err);
       alert('Failed to list product. Make sure the backend server is running.');
     }
   };

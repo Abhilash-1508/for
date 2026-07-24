@@ -4,8 +4,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { GiOakLeaf, GiChart, GiGavel } from 'react-icons/gi';
-import { MdMic, MdArrowForward, MdPhone, MdLocationOn, MdEmail } from 'react-icons/md';
+import { GiOakLeaf } from 'react-icons/gi';
+import { MdArrowForward, MdPhone, MdLocationOn, MdEmail } from 'react-icons/md';
 
 const Home = () => {
   const { t } = useLanguage();

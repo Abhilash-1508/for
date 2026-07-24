@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
-import { MdLocalHospital, MdPhone, MdLocationOn, MdSearch, MdWarning, MdInfo, MdFavorite } from 'react-icons/md';
+import { MdLocalHospital, MdPhone, MdLocationOn, MdWarning, MdInfo } from 'react-icons/md';
 
 const FIRST_AID_DATA = [
   {
@@ -106,7 +106,7 @@ const MEDICINAL_PLANTS = [
 ];
 
 const Healthcare = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState('firstaid');
   const [expandedGuide, setExpandedGuide] = useState(null);
 

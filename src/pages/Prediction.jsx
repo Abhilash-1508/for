@@ -8,7 +8,7 @@ import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdTrendingUp, MdQueryStats, MdInfo, MdAutoGraph } from 'react-icons/md';
 
 const Prediction = () => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   
   // Selection states
   const [productType, setProductType] = useState('honey');

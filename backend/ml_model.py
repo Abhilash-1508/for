@@ -224,13 +224,21 @@ def predict_price(product_type, target_month, quantity=1):
     }
 
 
-def train_all_models():
-    """Train models for all product types."""
+def train_all_models(force=False):
+    """Train models for all product types if missing or if forced."""
     product_types = ['honey', 'bamboo', 'fruits', 'herbs']
+    all_exist = all(os.path.exists(os.path.join(MODEL_DIR, f'{pt}_model.pkl')) for pt in product_types)
+
+    if all_exist and not force:
+        print("🤖 All ML price prediction models are pre-trained and ready.")
+        return
+
+    print("🤖 Training ML price prediction models...")
     for pt in product_types:
         train_model(pt)
-    print("\n🤖 All ML models trained successfully!")
+    print("✅ ML models initialization completed!")
 
 
 if __name__ == '__main__':
-    train_all_models()
+    train_all_models(force=True)
+
