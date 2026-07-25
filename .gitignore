@@ -6,6 +6,7 @@ __pycache__/
 .Python
 backend/venv/
 backend/ml_models/*.pkl
+backend/*.db
 
 # Logs
 logs
