@@ -5,7 +5,6 @@ import { productsAPI, predictionAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { 
   MdArrowBack, 
   MdAccountCircle, 
@@ -268,8 +267,6 @@ const ProductDetails = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

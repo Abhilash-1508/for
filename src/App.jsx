@@ -6,6 +6,7 @@ import { OfflineProvider } from './context/OfflineContext';
 import OfflineBanner from './components/OfflineBanner';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import VoiceAssistantWidget from './components/VoiceAssistantWidget';
 
 // Pages
 import Home from './pages/Home';
@@ -60,6 +61,7 @@ function App() {
               <Route path="/healthcare" element={<ProtectedRoute><Healthcare /></ProtectedRoute>} />
               <Route path="/education" element={<ProtectedRoute><Education /></ProtectedRoute>} />
             </Routes>
+            <VoiceAssistantWidget />
           </Router>
         </OfflineProvider>
       </AuthProvider>

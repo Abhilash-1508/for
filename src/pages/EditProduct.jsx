@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { CATEGORIES } from '../data/mockData';
 import { productsAPI } from '../services/api';
 import { MdEdit, MdOutlinePhotoCamera, MdInfo, MdArrowBack } from 'react-icons/md';
@@ -299,8 +298,6 @@ const EditProduct = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

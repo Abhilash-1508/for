@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdLocalHospital, MdPhone, MdLocationOn, MdWarning, MdInfo } from 'react-icons/md';
 
 const FIRST_AID_DATA = [
@@ -285,7 +284,6 @@ const Healthcare = () => {
           )}
         </main>
       </div>
-      <VoiceAssistantWidget />
     </div>
   );
 };

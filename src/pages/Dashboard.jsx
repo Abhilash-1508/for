@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { 
   MdWavingHand, 
   MdCloud, 
@@ -254,9 +253,6 @@ const Dashboard = () => {
 
         </main>
       </div>
-
-      {/* Voice assistant widget */}
-      <VoiceAssistantWidget />
     </div>
   );
 };

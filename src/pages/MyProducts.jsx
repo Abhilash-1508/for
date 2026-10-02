@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { PRODUCTS } from '../data/mockData';
 import { MdEdit as EditIcon, MdDelete as DeleteIcon, MdAddCircle as AddIcon, MdTrendingUp as TrendIcon, MdLocationOn as LocationIcon } from 'react-icons/md';
 
@@ -184,8 +183,6 @@ const MyProducts = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

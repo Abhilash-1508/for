@@ -41,12 +41,10 @@ export const AuthProvider = ({ children }) => {
           setAuthToken(savedToken);
         }
       } else {
-        // Initialize default active session for seamless demo experience
-        setUser(MOCK_USER);
-        localStorage.setItem('fc_user', JSON.stringify(MOCK_USER));
+        setUser(null);
       }
     } catch {
-      setUser(MOCK_USER);
+      setUser(null);
     }
     setLoading(false);
   }, []);

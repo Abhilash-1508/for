@@ -5,7 +5,6 @@ import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import ProductCard from '../components/ProductCard';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdSearch, MdSort, MdLocationOn, MdRefresh } from 'react-icons/md';
 
 const Marketplace = () => {
@@ -219,8 +218,6 @@ const Marketplace = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

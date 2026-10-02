@@ -4,7 +4,6 @@ import { weatherAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdOpacity, MdAir, MdWarning, MdRefresh } from 'react-icons/md';
 
 const Weather = () => {
@@ -55,24 +54,23 @@ const Weather = () => {
       <Navbar />
 
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
-        
+
         {/* Sidebar */}
         <Sidebar />
 
         {/* Weather Portal Content */}
         <main className="flex-1 space-y-6 animate-fade-in">
-          
+
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-extrabold text-gray-800 font-display">{t('weather')} Updates</h2>
               <p className="text-xs text-gray-500 font-semibold mt-1">Village weather forecasts and agricultural forest gatherer advisories</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider border ${
-                source === 'live' 
-                  ? 'bg-emerald-50 text-forest-green border-emerald-100/30' 
+              <span className={`text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider border ${source === 'live'
+                  ? 'bg-emerald-50 text-forest-green border-emerald-100/30'
                   : 'bg-amber-50 text-amber-700 border-amber-100'
-              }`}>
+                }`}>
                 {source === 'live' ? '🟢 Live Data' : '📶 Cached Data'}
               </span>
               <button
@@ -93,10 +91,10 @@ const Weather = () => {
           ) : (
             /* Main Weather Card & Advisory grid */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
+
               {/* Today's Detailed Weather (Left Side) */}
               <div className="lg:col-span-5 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between space-y-6">
-                
+
                 <div className="space-y-1">
                   <span className="bg-emerald-50 text-forest-green font-extrabold text-[9px] px-2.5 py-1 rounded-full border border-emerald-100/30 uppercase tracking-wider">
                     Live Station: Adilabad Forests
@@ -139,7 +137,7 @@ const Weather = () => {
 
               {/* Advisory Warning & 5-Day Forecast (Right Side) */}
               <div className="lg:col-span-7 space-y-6">
-                
+
                 {/* Regional Advisory warning */}
                 <div className="bg-amber-50 rounded-3xl border border-amber-200/50 p-6 shadow-sm space-y-3">
                   <div className="flex items-center gap-2 text-amber-800">
@@ -177,8 +175,6 @@ const Weather = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

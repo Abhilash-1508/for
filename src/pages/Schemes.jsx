@@ -4,7 +4,6 @@ import { SCHEMES } from '../data/mockData';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdGavel, MdFilterList, MdInfo, MdOutlineArrowForward } from 'react-icons/md';
 
 const Schemes = () => {
@@ -273,8 +272,6 @@ const Schemes = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

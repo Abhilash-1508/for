@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdSchool, MdOpenInNew, MdInfo } from 'react-icons/md';
 
 const DIGITAL_LITERACY = [
@@ -260,7 +259,6 @@ const Education = () => {
           )}
         </main>
       </div>
-      <VoiceAssistantWidget />
     </div>
   );
 };

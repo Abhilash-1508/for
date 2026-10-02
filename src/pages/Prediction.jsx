@@ -4,7 +4,6 @@ import { predictionAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { MdTrendingUp, MdQueryStats, MdInfo, MdAutoGraph } from 'react-icons/md';
 
 const Prediction = () => {
@@ -287,8 +286,6 @@ const Prediction = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };

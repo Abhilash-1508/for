@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import VoiceAssistantWidget from '../components/VoiceAssistantWidget';
 import { CATEGORIES } from '../data/mockData';
 import { productsAPI } from '../services/api';
 import { MdAddCircle, MdOutlinePhotoCamera, MdInfo } from 'react-icons/md';
@@ -272,8 +271,6 @@ const AddProduct = () => {
 
         </main>
       </div>
-
-      <VoiceAssistantWidget />
     </div>
   );
 };
