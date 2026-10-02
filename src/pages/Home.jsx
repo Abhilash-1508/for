@@ -116,42 +116,126 @@ const Home = () => {
             <p className="text-gray-500 text-sm">Comprehensive modules designed specifically for rural communities to enhance income and security.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* feature 1 */}
-            <div className="p-6 bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 hover:border-emerald-100 rounded-3xl transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
-                🛒
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* feature 1: Marketplace */}
+            <Link 
+              to="/marketplace" 
+              className="p-6 bg-gray-50 hover:bg-emerald-50/60 border border-gray-100 hover:border-emerald-200 rounded-3xl transition-all duration-300 group flex flex-col justify-between shadow-sm hover:shadow-md cursor-pointer"
+            >
+              <div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
+                  🛒
+                </div>
+                <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
+                  <span>{t('featureMarketplaceTitle')}</span>
+                  <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{t('featureMarketplaceDesc')}</p>
               </div>
-              <h3 className="font-bold text-base text-gray-800 mb-2 font-display">{t('featureMarketplaceTitle')}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{t('featureMarketplaceDesc')}</p>
-            </div>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
+                <span>Explore Marketplace →</span>
+              </div>
+            </Link>
             
-            {/* feature 2 */}
-            <div className="p-6 bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 hover:border-emerald-100 rounded-3xl transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
-                📈
+            {/* feature 2: AI Price Forecast */}
+            <Link 
+              to="/prediction" 
+              className="p-6 bg-gray-50 hover:bg-emerald-50/60 border border-gray-100 hover:border-emerald-200 rounded-3xl transition-all duration-300 group flex flex-col justify-between shadow-sm hover:shadow-md cursor-pointer"
+            >
+              <div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
+                  📈
+                </div>
+                <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
+                  <span>{t('featurePredictionTitle')}</span>
+                  <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{t('featurePredictionDesc')}</p>
               </div>
-              <h3 className="font-bold text-base text-gray-800 mb-2 font-display">{t('featurePredictionTitle')}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{t('featurePredictionDesc')}</p>
-            </div>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
+                <span>Try Price Forecast →</span>
+              </div>
+            </Link>
 
-            {/* feature 3 */}
-            <div className="p-6 bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 hover:border-emerald-100 rounded-3xl transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
-                📜
+            {/* feature 3: Schemes Advisor */}
+            <Link 
+              to="/schemes" 
+              className="p-6 bg-gray-50 hover:bg-emerald-50/60 border border-gray-100 hover:border-emerald-200 rounded-3xl transition-all duration-300 group flex flex-col justify-between shadow-sm hover:shadow-md cursor-pointer"
+            >
+              <div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
+                  📜
+                </div>
+                <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
+                  <span>{t('featureSchemesTitle')}</span>
+                  <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{t('featureSchemesDesc')}</p>
               </div>
-              <h3 className="font-bold text-base text-gray-800 mb-2 font-display">{t('featureSchemesTitle')}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{t('featureSchemesDesc')}</p>
-            </div>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
+                <span>Find Eligible Schemes →</span>
+              </div>
+            </Link>
 
-            {/* feature 4 */}
-            <div className="p-6 bg-gray-50 hover:bg-emerald-50/50 border border-gray-100 hover:border-emerald-100 rounded-3xl transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
-                🎙️
+            {/* feature 4: Weather & Voice Assistant */}
+            <Link 
+              to="/weather" 
+              className="p-6 bg-gray-50 hover:bg-emerald-50/60 border border-gray-100 hover:border-emerald-200 rounded-3xl transition-all duration-300 group flex flex-col justify-between shadow-sm hover:shadow-md cursor-pointer"
+            >
+              <div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
+                  🌦️
+                </div>
+                <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
+                  <span>Weather & Advisories</span>
+                  <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+                <p className="text-gray-500 text-xs leading-relaxed">Village weather forecasts and agricultural gatherer advisories.</p>
               </div>
-              <h3 className="font-bold text-base text-gray-800 mb-2 font-display">{t('featureVoiceTitle')}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{t('featureVoiceDesc')}</p>
-            </div>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
+                <span>Check Weather →</span>
+              </div>
+            </Link>
+
+            {/* feature 5: Healthcare Guidance */}
+            <Link 
+              to="/healthcare" 
+              className="p-6 bg-gray-50 hover:bg-emerald-50/60 border border-gray-100 hover:border-emerald-200 rounded-3xl transition-all duration-300 group flex flex-col justify-between shadow-sm hover:shadow-md cursor-pointer"
+            >
+              <div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
+                  🩺
+                </div>
+                <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
+                  <span>Healthcare Guidance</span>
+                  <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+                <p className="text-gray-500 text-xs leading-relaxed">First aid steps, nearby health centers, emergency numbers, and medicinal plants.</p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
+                <span>View Health Guide →</span>
+              </div>
+            </Link>
+
+            {/* feature 6: Education & Training */}
+            <Link 
+              to="/education" 
+              className="p-6 bg-gray-50 hover:bg-emerald-50/60 border border-gray-100 hover:border-emerald-200 rounded-3xl transition-all duration-300 group flex flex-col justify-between shadow-sm hover:shadow-md cursor-pointer"
+            >
+              <div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-100 group-hover:bg-forest-green text-forest-green group-hover:text-white flex items-center justify-center text-2xl transition-colors mb-6">
+                  🎓
+                </div>
+                <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
+                  <span>Education & Training</span>
+                  <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+                <p className="text-gray-500 text-xs leading-relaxed">Digital literacy, forest produce processing best practices, and scholarship portals.</p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
+                <span>Start Learning →</span>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
