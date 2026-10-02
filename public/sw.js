@@ -1,7 +1,7 @@
 // ForestConnect AI — Service Worker
 // Provides offline caching and background sync
 
-const CACHE_NAME = 'forestconnect-v1';
+const CACHE_NAME = 'forestconnect-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-const API_CACHE_NAME = 'forestconnect-api-v1';
+const API_CACHE_NAME = 'forestconnect-api-v2';
 
 // Install — cache static assets
 self.addEventListener('install', (event) => {
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — cache-first for static, network-first for API
+// Fetch — network first for navigation/HTML, network-first for API, cache fallback for offline
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -45,7 +45,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache successful GET responses
           if (request.method === 'GET' && response.ok) {
             const responseClone = response.clone();
             caches.open(API_CACHE_NAME).then((cache) => {
@@ -55,7 +54,6 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Offline — return cached API response
           return caches.match(request).then((cached) => {
             if (cached) return cached;
             return new Response(
@@ -68,25 +66,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets — cache first
+  // Navigation & HTML assets — network first, cache fallback if offline
+  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request).then((cached) => cached || caches.match('/index.html'));
+        })
+    );
+    return;
+  }
+
+  // Other static assets (images/css/js) — cache first with network update
   event.respondWith(
     caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        // Cache new static resources
+      return cached || fetch(request).then((response) => {
         if (response.ok && request.method === 'GET') {
           const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
         }
         return response;
       });
-    }).catch(() => {
-      // Ultimate fallback for navigation requests
-      if (request.mode === 'navigate') {
-        return caches.match('/index.html');
-      }
     })
   );
 });

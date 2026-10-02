@@ -12,8 +12,9 @@ import {
   MdTrendingUp, 
   MdGavel, 
   MdStorefront, 
-  MdAccountBox, 
-  MdArrowForward 
+  MdArrowForward,
+  MdLocalHospital,
+  MdSchool
 } from 'react-icons/md';
 
 const Dashboard = () => {
@@ -203,10 +204,10 @@ const Dashboard = () => {
 
           {/* Quick Access Grid */}
           <div className="space-y-4">
-            <h3 className="font-bold text-base text-gray-800 font-display">Quick Livelihood Actions</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <h3 className="font-bold text-base text-gray-800 font-display">Quick Livelihood Modules</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               
-              {/* Card Shortcut: Marketplace */}
+              {/* Card 1: Marketplace */}
               <Link
                 to="/marketplace"
                 className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group"
@@ -216,11 +217,39 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{t('marketplace')}</h4>
-                  <p className="text-[10px] text-gray-400 font-medium">Browse and buy forest produce</p>
+                  <p className="text-[10px] text-gray-400 font-medium">Browse & buy minor forest produce</p>
+                </div>
+              </Link>
+
+              {/* Card 2: AI Price Forecast */}
+              <Link
+                to="/prediction"
+                className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group"
+              >
+                <div className="p-3 bg-emerald-100 text-forest-green group-hover:bg-forest-green group-hover:text-white rounded-2xl transition-colors">
+                  <MdTrendingUp className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{t('pricePrediction')}</h4>
+                  <p className="text-[10px] text-gray-400 font-medium">ML price trends & market timing</p>
+                </div>
+              </Link>
+
+              {/* Card 3: Government Schemes */}
+              <Link
+                to="/schemes"
+                className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group"
+              >
+                <div className="p-3 bg-emerald-100 text-forest-green group-hover:bg-forest-green group-hover:text-white rounded-2xl transition-colors">
+                  <MdGavel className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{t('schemes')}</h4>
+                  <p className="text-[10px] text-gray-400 font-medium">Welfare programs & subsidies</p>
                 </div>
               </Link>
               
-              {/* Card Shortcut: Voice Assistant */}
+              {/* Card 4: Weather Updates */}
               <Link
                 to="/weather"
                 className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group"
@@ -230,21 +259,35 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{t('weather')} Updates</h4>
-                  <p className="text-[10px] text-gray-400 font-medium">Regional agricultural advisories</p>
+                  <p className="text-[10px] text-gray-400 font-medium">Forecasts & gatherer advisories</p>
                 </div>
               </Link>
 
-              {/* Card Shortcut: Profile */}
+              {/* Card 5: Healthcare Guidance */}
               <Link
-                to="/profile"
-                className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group sm:col-span-2 md:col-span-1"
+                to="/healthcare"
+                className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group"
               >
                 <div className="p-3 bg-emerald-100 text-forest-green group-hover:bg-forest-green group-hover:text-white rounded-2xl transition-colors">
-                  <MdAccountBox className="h-6 w-6" />
+                  <MdLocalHospital className="h-6 w-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">Manage {t('profile')}</h4>
-                  <p className="text-[10px] text-gray-400 font-medium">Update language & village info</p>
+                  <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{t('healthcare')} Guidance</h4>
+                  <p className="text-[10px] text-gray-400 font-medium">First aid & emergency health centers</p>
+                </div>
+              </Link>
+
+              {/* Card 6: Education & Training */}
+              <Link
+                to="/education"
+                className="bg-white hover:bg-emerald-50/40 p-6 rounded-3xl border border-gray-100 hover:border-emerald-100 shadow-sm flex items-center gap-4 transition-all group"
+              >
+                <div className="p-3 bg-emerald-100 text-forest-green group-hover:bg-forest-green group-hover:text-white rounded-2xl transition-colors">
+                  <MdSchool className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{t('education')} & Training</h4>
+                  <p className="text-[10px] text-gray-400 font-medium">Digital literacy & harvest training</p>
                 </div>
               </Link>
 
