@@ -4,7 +4,7 @@ import { weatherAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import { MdOpacity, MdAir, MdWarning, MdRefresh, MdMyLocation, MdSearch, MdLocationOn } from 'react-icons/md';
+import { MdOpacity, MdAir, MdWarning, MdRefresh, MdMyLocation, MdSearch, MdLocationOn, MdPushPin, MdDeleteOutline, MdCheck } from 'react-icons/md';
 
 // Helper to map Open-Meteo weather codes to condition labels and emojis
 const getWeatherCondition = (code) => {
@@ -18,14 +18,38 @@ const getWeatherCondition = (code) => {
   return { text: 'Scattered Showers', icon: '🌦️', advisoryEn: 'High humidity. Protect harvested goods from moisture.', advisoryTe: 'అధిక తేమ. ఉత్పత్తులను తేమ నుండి రక్షించండి.' };
 };
 
+const DEFAULT_TRACKED_LOCATIONS = [
+  { id: '1', name: 'Adilabad Forests', region: 'Telangana', lat: 19.08, lon: 78.27, temp: '29°C', icon: '🌦️' },
+  { id: '2', name: 'Hyderabad HQ', region: 'Telangana', lat: 17.38, lon: 78.48, temp: '31°C', icon: '☀️' },
+  { id: '3', name: 'Utnoor Tribal Belt', region: 'Adilabad', lat: 19.36, lon: 78.78, temp: '28°C', icon: '⛅' },
+  { id: '4', name: 'Bhadrachalam Forest', region: 'Bhadradri', lat: 17.67, lon: 80.89, temp: '30°C', icon: '🌦️' }
+];
+
 const Weather = () => {
   const { language } = useLanguage();
   const [weatherData, setWeatherData] = useState(WEATHER_ADVISORY);
   const [locationName, setLocationName] = useState('Detecting current location...');
-  const [coords, setCoords] = useState({ lat: 19.08, lon: 78.27 }); // Default Adilabad fallback
+  const [coords, setCoords] = useState({ lat: 19.08, lon: 78.27 });
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState('live');
+
+  // Tracked locations state (persisted in localStorage)
+  const [trackedLocations, setTrackedLocations] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fc_tracked_locations');
+      return saved ? JSON.parse(saved) : DEFAULT_TRACKED_LOCATIONS;
+    } catch {
+      return DEFAULT_TRACKED_LOCATIONS;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('fc_tracked_locations', JSON.stringify(trackedLocations));
+    } catch {}
+  }, [trackedLocations]);
 
   // Fetch real-time weather from Open-Meteo API
   const fetchRealWeather = async (latitude, longitude, customName = null) => {
@@ -80,6 +104,7 @@ const Weather = () => {
       }
 
       setLocationName(nameToSet || 'Your Current Location');
+      setCoords({ lat: latitude, lon: longitude });
       setWeatherData({
         temp: currentTemp,
         condition: `${conditionInfo.icon} ${conditionInfo.text}`,
@@ -137,30 +162,60 @@ const Weather = () => {
     );
   };
 
-  // City Search Handler (Geocode city name via Open-Meteo Geocoding)
-  const handleCitySearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=1&language=en&format=json`);
-      if (!res.ok) throw new Error('City geocode failed');
-      const data = await res.json();
-
-      if (data.results && data.results.length > 0) {
-        const city = data.results[0];
-        const label = `${city.name}${city.admin1 ? `, ${city.admin1}` : ''}, ${city.country || ''}`;
-        setCoords({ lat: city.latitude, lon: city.longitude });
-        fetchRealWeather(city.latitude, city.longitude, label);
-      } else {
-        alert(`City "${searchQuery}" not found. Please try another location name.`);
-        setLoading(false);
-      }
-    } catch {
-      alert('Error searching location. Please try again.');
-      setLoading(false);
+  // Auto-search dropdown suggestions as user types
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
     }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=5&language=en&format=json`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.results || []);
+        }
+      } catch {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Select a search result
+  const handleSelectSearchResult = (item) => {
+    const label = `${item.name}${item.admin1 ? `, ${item.admin1}` : ''}, ${item.country || ''}`;
+    setSearchQuery('');
+    setSearchResults([]);
+    fetchRealWeather(item.latitude, item.longitude, label);
+  };
+
+  // Toggle tracking for current location
+  const isCurrentlyTracked = trackedLocations.some(
+    loc => loc.name.toLowerCase() === locationName.toLowerCase() || (Math.abs(loc.lat - coords.lat) < 0.05 && Math.abs(loc.lon - coords.lon) < 0.05)
+  );
+
+  const toggleTrackLocation = (nameToTrack = locationName, targetLat = coords.lat, targetLon = coords.lon, tempVal = weatherData?.temp, iconVal = weatherData?.condition?.split(' ')[0] || '🌤️') => {
+    if (isCurrentlyTracked) {
+      setTrackedLocations(prev => prev.filter(l => l.name.toLowerCase() !== nameToTrack.toLowerCase() && Math.abs(l.lat - targetLat) >= 0.05));
+    } else {
+      const newLoc = {
+        id: `loc_${Date.now()}`,
+        name: nameToTrack,
+        region: nameToTrack.includes(',') ? nameToTrack.split(',')[1].trim() : 'Tracked',
+        lat: targetLat,
+        lon: targetLon,
+        temp: tempVal || '28°C',
+        icon: iconVal
+      };
+      setTrackedLocations(prev => [newLoc, ...prev]);
+    }
+  };
+
+  const removeTrackedLocation = (idToRemove) => {
+    setTrackedLocations(prev => prev.filter(l => l.id !== idToRemove));
   };
 
   useEffect(() => {
@@ -186,11 +241,25 @@ const Weather = () => {
             <div>
               <div className="flex items-center gap-2 text-forest-green font-bold text-xs uppercase tracking-wider mb-1">
                 <MdLocationOn className="h-4 w-4 text-emerald-600 animate-pulse" />
-                <span>Live Location Weather</span>
+                <span>Live Location Weather Engine</span>
               </div>
-              <h2 className="text-2xl font-extrabold text-gray-800 font-display">{locationName}</h2>
-              <p className="text-xs text-gray-500 font-medium mt-0.5">
-                Real-time weather forecasts and forest gatherer advisories for your area.
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-2xl font-extrabold text-gray-800 font-display">{locationName}</h2>
+                <button
+                  onClick={() => toggleTrackLocation()}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                    isCurrentlyTracked
+                      ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                      : 'bg-emerald-50 text-forest-green hover:bg-emerald-100 border border-emerald-200'
+                  }`}
+                  title={isCurrentlyTracked ? 'Currently tracked' : 'Pin to tracked locations'}
+                >
+                  {isCurrentlyTracked ? <MdCheck className="h-4 w-4" /> : <MdPushPin className="h-4 w-4" />}
+                  <span>{isCurrentlyTracked ? 'Tracked Location' : 'Track Location'}</span>
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 font-medium mt-1">
+                Check weather anywhere in the world and track live temperatures across your saved locations.
               </p>
             </div>
 
@@ -222,27 +291,103 @@ const Weather = () => {
             </div>
           </div>
 
-          {/* City Search Bar */}
-          <form onSubmit={handleCitySearch} className="flex gap-2">
-            <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <MdSearch className="h-5 w-5" />
+          {/* Global Search Bar with Live Suggestions */}
+          <div className="relative">
+            <form onSubmit={(e) => { e.preventDefault(); if (searchResults.length > 0) handleSelectSearchResult(searchResults[0]); }} className="flex gap-2">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <MdSearch className="h-5 w-5" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Check temperature anywhere in the world (e.g. London, Tokyo, Adilabad, Hyderabad, Delhi)..."
+                  className="w-full bg-white border border-gray-200 rounded-2xl pl-10 pr-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-forest-green transition-all shadow-sm"
+                />
               </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search any city or village (e.g. Hyderabad, Adilabad, Mumbai, Delhi)..."
-                className="w-full bg-white border border-gray-200 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-forest-green transition-all shadow-sm"
-              />
+              <button
+                type="submit"
+                className="bg-forest-green hover:bg-forest-dark text-white font-extrabold px-6 py-3.5 rounded-2xl text-xs transition-all shadow-sm cursor-pointer"
+              >
+                Search
+              </button>
+            </form>
+
+            {/* Auto-suggestions dropdown */}
+            {searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-xl z-30 overflow-hidden divide-y divide-gray-50 animate-fade-in">
+                {searchResults.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSelectSearchResult(item)}
+                    className="w-full text-left p-3.5 hover:bg-emerald-50/60 transition-colors flex items-center justify-between group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <MdLocationOn className="h-4 w-4 text-forest-green" />
+                      <div>
+                        <p className="text-sm font-bold text-gray-800">{item.name}</p>
+                        <p className="text-xs text-gray-500">{item.admin1 ? `${item.admin1}, ` : ''}{item.country || ''}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-forest-green opacity-0 group-hover:opacity-100 transition-opacity">View Weather →</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Tracked Locations Live Monitoring Board */}
+          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MdPushPin className="h-5 w-5 text-forest-green" />
+                <h3 className="font-extrabold text-base text-gray-800 font-display">Tracked Locations Live Temperature Watch</h3>
+              </div>
+              <span className="text-xs font-bold text-gray-400">{trackedLocations.length} locations tracked</span>
             </div>
-            <button
-              type="submit"
-              className="bg-forest-green hover:bg-forest-dark text-white font-extrabold px-6 py-3 rounded-2xl text-xs transition-all shadow-sm flex items-center gap-1.5"
-            >
-              <span>Search</span>
-            </button>
-          </form>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {trackedLocations.map((loc) => {
+                const isSelected = locationName.toLowerCase().includes(loc.name.toLowerCase()) || loc.name.toLowerCase().includes(locationName.toLowerCase());
+                return (
+                  <div
+                    key={loc.id}
+                    className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-3 cursor-pointer group ${
+                      isSelected
+                        ? 'bg-emerald-50/80 border-forest-green shadow-md ring-2 ring-forest-green/20'
+                        : 'bg-gray-50 hover:bg-white border-gray-100 hover:border-emerald-200 shadow-sm'
+                    }`}
+                    onClick={() => fetchRealWeather(loc.lat, loc.lon, loc.name)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">{loc.region}</span>
+                        <h4 className="font-bold text-sm text-gray-800 font-display group-hover:text-forest-green transition-colors">{loc.name}</h4>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeTrackedLocation(loc.id); }}
+                        className="text-gray-300 hover:text-red-500 p-1 transition-colors cursor-pointer"
+                        title="Remove from tracked list"
+                      >
+                        <MdDeleteOutline className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{loc.icon}</span>
+                        <span className="text-xl font-extrabold text-gray-900">{loc.temp}</span>
+                      </div>
+                      <span className="text-[10px] font-extrabold text-forest-green bg-white px-2 py-1 rounded-lg border border-emerald-100 shadow-2xs">
+                        {isSelected ? 'Active' : 'Monitor →'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
           {loading ? (
             <div className="bg-white border border-gray-100 rounded-3xl p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-sm">
