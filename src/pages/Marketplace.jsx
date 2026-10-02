@@ -43,10 +43,10 @@ const Marketplace = () => {
 
   // Filter unique locations from products list for location dropdown
   const uniqueLocations = ['all', ...new Set(productsArray.filter(p => p && p.location).map(p => {
-    const loc = String(p.location);
-    if (loc.includes('Adilabad')) return 'Adilabad';
-    if (loc.includes('Bhadrachalam')) return 'Bhadrachalam';
-    return loc || 'Unknown';
+    const loc = String(p.location).trim();
+    if (!loc) return 'Unknown';
+    const parts = loc.split(',').map(s => s.trim());
+    return parts[parts.length - 1] || loc;
   }))];
 
   const handleResetFilters = () => {

@@ -178,6 +178,10 @@ const AddProduct = () => {
                           onChange={(e) => {
                             const file = e.target.files[0];
                             if (file) {
+                              if (file.size > 2 * 1024 * 1024) {
+                                alert("Image size exceeds 2MB limit. Please choose a smaller photo.");
+                                return;
+                              }
                               const reader = new FileReader();
                               reader.onloadend = () => {
                                 setFormData({ ...formData, image: reader.result });

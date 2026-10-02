@@ -425,20 +425,29 @@ def update_product(product_id):
     return jsonify({'success': True, 'message': 'Product updated successfully'})
 
 
-@app.route('/api/products/<int:product_id>', methods=['DELETE'])
+@app.route('/api/products/<product_id>', methods=['DELETE'])
 def delete_product(product_id):
     """Delete (deactivate) a product listing."""
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
-    conn = get_db()
-    conn.execute('UPDATE products SET status = "deleted" WHERE id = ? AND seller_id = ?', (product_id, user['id']))
-    conn.execute('UPDATE users SET active_uploads_count = MAX(0, active_uploads_count - 1) WHERE id = ?', (user['id'],))
-    conn.commit()
-    conn.close()
+    try:
+        numeric_id = int(str(product_id).replace('p_temp_', '').replace('p', ''))
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid product ID format'}), 400
 
-    return jsonify({'success': True, 'message': 'Product deleted'})
+    conn = get_db()
+    cursor = conn.execute('UPDATE products SET status = "deleted" WHERE id = ? AND seller_id = ?', (numeric_id, user['id']))
+    affected = cursor.rowcount
+    if affected > 0:
+        conn.execute('UPDATE users SET active_uploads_count = MAX(0, active_uploads_count - 1) WHERE id = ?', (user['id'],))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Product deleted successfully'})
+    else:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Product not found or unauthorized'}), 404
 
 
 # ═══════════════════════════════════════════════════════════════

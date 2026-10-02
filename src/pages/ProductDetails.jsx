@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AI_PREDICTIONS } from '../data/mockData';
-import { productsAPI } from '../services/api';
+import { productsAPI, predictionAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -21,14 +21,33 @@ const ProductDetails = () => {
   const { t } = useLanguage();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [aiTrend, setAiTrend] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
         const result = await productsAPI.getById(id);
-        if (result.success) {
-          setProduct(result.product);
+        if (result.success && result.product) {
+          const p = result.product;
+          setProduct(p);
+          try {
+            const predRes = await predictionAPI.predict(p.category || 'honey', 1, p.harvestMonth || 'July');
+            if (predRes && predRes.success && predRes.prediction) {
+              const pred = predRes.prediction;
+              setAiTrend({
+                expectedPrice: pred.predicted_price_display || `₹${pred.predicted_price}`,
+                bestTime: pred.best_selling_month,
+                demandLevel: pred.demand_level,
+                historicalData: pred.historical_trend,
+                labels: pred.historical_labels
+              });
+            } else {
+              setAiTrend(AI_PREDICTIONS[p.category] || AI_PREDICTIONS.honey);
+            }
+          } catch {
+            setAiTrend(AI_PREDICTIONS[p.category] || AI_PREDICTIONS.honey);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -69,7 +88,7 @@ const ProductDetails = () => {
   }
 
   // Load the AI price projection configuration for the product category
-  const aiTrend = AI_PREDICTIONS[product.category] || AI_PREDICTIONS.honey;
+  const activeAiTrend = aiTrend || AI_PREDICTIONS[product.category] || AI_PREDICTIONS.honey;
 
   return (
     <div className="min-h-screen flex flex-col bg-bg-forest">
@@ -189,18 +208,18 @@ const ProductDetails = () => {
                     <h3 className="font-bold text-sm text-gray-800 font-display">AI Price Trend Analytics</h3>
                   </div>
                   <span className="bg-emerald-50 text-forest-green font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-100/30">
-                    Target: {aiTrend.bestTime}
+                    Target: {activeAiTrend.bestTime}
                   </span>
                 </div>
 
                 {/* Simulated Pricing Graph using styled Tailwind Div Heights */}
                 <div className="space-y-4">
                   <div className="flex items-end justify-between h-36 pt-6 border-b border-gray-100 px-2">
-                    {aiTrend.historicalData.map((val, idx) => {
+                    {activeAiTrend.historicalData.map((val, idx) => {
                       // Calculate height percentage based on max value in list
-                      const maxVal = Math.max(...aiTrend.historicalData);
+                      const maxVal = Math.max(...activeAiTrend.historicalData);
                       const heightPercent = (val / maxVal) * 100;
-                      const isTarget = idx === aiTrend.historicalData.length - 1;
+                      const isTarget = idx === activeAiTrend.historicalData.length - 1;
 
                       return (
                         <div key={idx} className="flex flex-col items-center flex-1 space-y-2 group">
@@ -221,7 +240,7 @@ const ProductDetails = () => {
                           
                           {/* Label */}
                           <span className={`text-[10px] font-bold ${isTarget ? 'text-forest-green font-black' : 'text-gray-500'}`}>
-                            {aiTrend.labels[idx]}
+                            {activeAiTrend.labels[idx]}
                           </span>
                         </div>
                       );
@@ -232,11 +251,11 @@ const ProductDetails = () => {
                   <div className="bg-sage-accent/40 rounded-2xl p-4 border border-emerald-100/30 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
                     <div className="space-y-1">
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('resultExpectedPrice')}</p>
-                      <p className="text-base font-black text-gray-800">{aiTrend.expectedPrice}</p>
+                      <p className="text-base font-black text-gray-800">{activeAiTrend.expectedPrice}</p>
                     </div>
                     <div className="space-y-1 sm:border-l sm:border-emerald-100/50 sm:pl-4">
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('resultBestTime')}</p>
-                      <p className="text-base font-black text-forest-green">{aiTrend.bestTime}</p>
+                      <p className="text-base font-black text-forest-green">{activeAiTrend.bestTime}</p>
                     </div>
                   </div>
 

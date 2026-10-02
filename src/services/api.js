@@ -100,8 +100,8 @@ const apiCall = async (method, url, data = null, cacheKey = null) => {
       if (cached) return { ...cached, _fromCache: true };
     }
 
-    // If it's a POST/PUT and we're offline, queue it
-    if (isOffline && ['post', 'put'].includes(method.toLowerCase())) {
+    // If it's a POST/PUT/DELETE and we're offline, queue it
+    if (isOffline && ['post', 'put', 'delete'].includes(method.toLowerCase())) {
       addToOfflineQueue({ method, url, data });
       return { success: true, _queued: true, message: 'Request queued for sync' };
     }
@@ -209,8 +209,18 @@ export const productsAPI = {
   },
 
   delete: async (productId) => {
-    const numericId = String(productId).replace('p', '');
-    return await apiCall('delete', `/products/${numericId}`);
+    const cleanId = String(productId);
+    const result = await apiCall('delete', `/products/${cleanId}`);
+    
+    // Update local products cache immediately
+    let cached = getCachedResponse('products');
+    if (cached && Array.isArray(cached.products)) {
+      cached.products = cached.products.filter(p => String(p.id) !== cleanId);
+      try {
+        cacheResponse('products', cached);
+      } catch {}
+    }
+    return result;
   }
 };
 

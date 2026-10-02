@@ -23,21 +23,19 @@ const MyProducts = () => {
     setLoading(true);
     try {
       const result = await productsAPI.getAll();
-      if (result.success && result.products && result.products.length > 0) {
-        // Filter products belonging to the current logged-in user
-        const mine = result.products.filter(p =>
-          (p.seller_name || p.sellerName) === user.name ||
-          (p.seller_id && String(p.seller_id) === String(user.id))
-        );
-        setUserProducts(mine);
-      } else {
-        // Offline/backend unavailable: show mock data as demo
-        setUserProducts(PRODUCTS.slice(0, 2));
-      }
+      let allProducts = (result && result.success && Array.isArray(result.products)) 
+        ? result.products 
+        : PRODUCTS;
+        
+      const mine = allProducts.filter(p =>
+        (p.seller_name || p.sellerName) === user.name ||
+        (p.seller_id && String(p.seller_id) === String(user.id))
+      );
+      setUserProducts(mine.length > 0 ? mine : PRODUCTS.slice(0, 2));
     } catch (err) {
       console.error('Error fetching my products:', err);
-      // Fallback to demo mock products
-      setUserProducts(PRODUCTS.slice(0, 2));
+      const mine = PRODUCTS.filter(p => (p.seller_name || p.sellerName) === user.name);
+      setUserProducts(mine.length > 0 ? mine : PRODUCTS.slice(0, 2));
     } finally {
       setLoading(false);
     }
