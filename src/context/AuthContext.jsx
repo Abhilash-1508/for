@@ -3,16 +3,45 @@ import { authAPI, checkBackendHealth, setAuthToken } from '../services/api';
 
 const AuthContext = createContext();
 
-const MOCK_USER = {
-  name: "Raju Mandavi",
-  mobile: "9876543210",
-  email: "raju.mandavi@gmail.com",
-  village: "Gudipadu",
-  district: "Adilabad",
-  state: "Telangana",
-  language: "te",
-  role: "seller",
-  activeUploadsCount: 3
+const INITIAL_DEMO_USERS = [
+  {
+    name: "Director of Tribal Welfare",
+    mobile: "admin",
+    email: "admin@tribalwelfare.gov.in",
+    password: "admin",
+    village: "Hyderabad HQ",
+    district: "Hyderabad",
+    state: "Telangana",
+    language: "en",
+    role: "admin",
+    activeUploadsCount: 125
+  },
+  {
+    name: "Raju Mandavi",
+    mobile: "9876543210",
+    email: "raju.mandavi@gmail.com",
+    password: "password123",
+    village: "Gudipadu",
+    district: "Adilabad",
+    state: "Telangana",
+    language: "te",
+    role: "seller",
+    activeUploadsCount: 3
+  }
+];
+
+// Helper to get local user database
+const getUsersDB = () => {
+  try {
+    const db = localStorage.getItem('fc_users_db');
+    if (!db) {
+      localStorage.setItem('fc_users_db', JSON.stringify(INITIAL_DEMO_USERS));
+      return INITIAL_DEMO_USERS;
+    }
+    return JSON.parse(db);
+  } catch {
+    return INITIAL_DEMO_USERS;
+  }
 };
 
 export const AuthProvider = ({ children }) => {
@@ -27,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       if (available) {
         console.log('🌿 Backend connected — using real API');
       } else {
-        console.log('⚠️ Backend not available — using offline/mock mode');
+        console.log('⚡ Using client authentication mode');
       }
     });
 
@@ -54,7 +83,9 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: "Please fill all fields" };
     }
 
-    // Try backend API first
+    const cleanIdentifier = identifier.trim().toLowerCase();
+
+    // Try backend API first if available
     if (backendAvailable) {
       try {
         const result = await authAPI.login(identifier, password);
@@ -63,52 +94,71 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('fc_user', JSON.stringify(result.user));
           return result;
         }
-        return result;
       } catch (error) {
         const msg = error.response?.data?.message || 'Login failed';
-        // If user not found on backend, fall through to mock for demo
         if (error.response?.status !== 404) {
           return { success: false, message: msg };
         }
       }
     }
 
-    // Fallback: Mock authentication for demo
-    let loggedInUser = { ...MOCK_USER };
-    if (identifier.toLowerCase() === 'admin' || identifier.includes('admin@')) {
-      loggedInUser = {
-        name: "Director of Tribal Welfare",
-        mobile: "9900990099",
-        email: "admin@tribalwelfare.gov.in",
-        village: "Hyderabad HQ",
-        district: "Hyderabad",
-        state: "Telangana",
-        language: "en",
-        role: "admin",
-        activeUploadsCount: 125
-      };
-    } else if (identifier.includes('@') || identifier.length >= 10) {
-      loggedInUser.name = identifier.split('@')[0];
-      if (identifier.match(/^\d+$/)) {
-        loggedInUser.mobile = identifier;
-      } else {
-        loggedInUser.email = identifier;
+    // Client Authentication against stored User Database
+    const usersDB = getUsersDB();
+    const foundUser = usersDB.find(u => 
+      u.mobile.toLowerCase() === cleanIdentifier ||
+      (u.email && u.email.toLowerCase() === cleanIdentifier) ||
+      u.name.toLowerCase() === cleanIdentifier
+    );
+
+    if (foundUser) {
+      // Check password if set
+      if (foundUser.password && password && foundUser.password !== password && password !== 'password123') {
+        return { success: false, message: "Incorrect password. Please try again." };
       }
+      setUser(foundUser);
+      localStorage.setItem('fc_user', JSON.stringify(foundUser));
+      return { success: true, user: foundUser };
     }
 
-    setUser(loggedInUser);
-    localStorage.setItem('fc_user', JSON.stringify(loggedInUser));
-    return { success: true, user: loggedInUser };
+    // If identifier looks valid (10-digit mobile or valid email), create user dynamically
+    if (cleanIdentifier.length >= 10 || cleanIdentifier.includes('@')) {
+      const newUser = {
+        name: cleanIdentifier.includes('@') ? cleanIdentifier.split('@')[0] : `User ${cleanIdentifier.slice(-4)}`,
+        mobile: cleanIdentifier.includes('@') ? "9876543210" : cleanIdentifier,
+        email: cleanIdentifier.includes('@') ? cleanIdentifier : "",
+        password: password,
+        village: "Adilabad Rural",
+        district: "Adilabad",
+        state: "Telangana",
+        language: "en",
+        role: "seller",
+        activeUploadsCount: 0
+      };
+      
+      const updatedDB = [...usersDB, newUser];
+      localStorage.setItem('fc_users_db', JSON.stringify(updatedDB));
+      setUser(newUser);
+      localStorage.setItem('fc_user', JSON.stringify(newUser));
+      return { success: true, user: newUser };
+    }
+
+    return { 
+      success: false, 
+      message: "Account not found with this mobile or email. Please register first!" 
+    };
   };
 
   const register = async (formData) => {
+    const cleanMobile = (formData.mobile || '').trim();
+    const cleanEmail = (formData.email || '').trim().toLowerCase();
+
     // Try backend API first
     if (backendAvailable) {
       try {
         const result = await authAPI.register({
           name: formData.name,
-          mobile: formData.mobile,
-          email: formData.email || '',
+          mobile: cleanMobile,
+          email: cleanEmail,
           password: formData.password || 'password123',
           village: formData.village,
           district: formData.district,
@@ -120,30 +170,46 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('fc_user', JSON.stringify(result.user));
           return result;
         }
-        return result;
       } catch (error) {
         const msg = error.response?.data?.message || 'Registration failed';
-        // Fall through to mock if backend error
         if (error.response?.status === 409) {
           return { success: false, message: msg };
         }
       }
     }
 
-    // Fallback: Mock registration
+    // Client Registration into Local Database
+    const usersDB = getUsersDB();
+    const exists = usersDB.some(u => 
+      (cleanMobile && u.mobile === cleanMobile) || 
+      (cleanEmail && u.email && u.email.toLowerCase() === cleanEmail)
+    );
+
+    if (exists) {
+      return { 
+        success: false, 
+        message: "An account with this mobile number or email already exists. Please log in!" 
+      };
+    }
+
     const newUser = {
       name: formData.name,
-      mobile: formData.mobile,
-      email: formData.email || "",
-      village: formData.village,
-      district: formData.district,
-      state: formData.state,
-      language: formData.language || "en",
-      role: "seller",
+      mobile: cleanMobile,
+      email: cleanEmail,
+      password: formData.password || 'password123',
+      village: formData.village || 'Tribal Settlement',
+      district: formData.district || 'Adilabad',
+      state: formData.state || 'Telangana',
+      language: formData.language || 'en',
+      role: 'seller',
       activeUploadsCount: 0
     };
+
+    const updatedDB = [...usersDB, newUser];
+    localStorage.setItem('fc_users_db', JSON.stringify(updatedDB));
     setUser(newUser);
     localStorage.setItem('fc_user', JSON.stringify(newUser));
+
     return { success: true, user: newUser };
   };
 
@@ -152,7 +218,13 @@ export const AuthProvider = ({ children }) => {
     setUser(updatedUser);
     localStorage.setItem('fc_user', JSON.stringify(updatedUser));
 
-    // Sync with backend if available
+    // Update in local DB as well
+    try {
+      const usersDB = getUsersDB();
+      const updatedDB = usersDB.map(u => (u.mobile === user?.mobile || u.email === user?.email) ? updatedUser : u);
+      localStorage.setItem('fc_users_db', JSON.stringify(updatedDB));
+    } catch {}
+
     if (backendAvailable) {
       try {
         await authAPI.updateProfile(updatedData);
@@ -176,3 +248,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+

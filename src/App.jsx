@@ -33,33 +33,24 @@ function App() {
           <Router>
             <OfflineBanner />
             <Routes>
-              {/* Public Phase 1 Routes */}
+              {/* Public Routes — Browsing Features (Amazon/Flipkart Style) */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/marketplace" element={<ErrorBoundary><Marketplace /></ErrorBoundary>} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/schemes" element={<Schemes />} />
+              <Route path="/prediction" element={<Prediction />} />
+              <Route path="/weather" element={<Weather />} />
+              <Route path="/healthcare" element={<Healthcare />} />
+              <Route path="/education" element={<Education />} />
               
-              {/* Logged In Phase 2 Routes (Protected) */}
+              {/* Protected Routes — Account & Management Actions */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route 
-                path="/marketplace" 
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary>
-                      <Marketplace />
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/product/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
               <Route path="/add-product" element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
               <Route path="/edit-product/:id" element={<ProtectedRoute><EditProduct /></ProtectedRoute>} />
               <Route path="/my-products" element={<ProtectedRoute><MyProducts /></ProtectedRoute>} />
-              <Route path="/schemes" element={<ProtectedRoute><Schemes /></ProtectedRoute>} />
-              <Route path="/prediction" element={<ProtectedRoute><Prediction /></ProtectedRoute>} />
-              <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/healthcare" element={<ProtectedRoute><Healthcare /></ProtectedRoute>} />
-              <Route path="/education" element={<ProtectedRoute><Education /></ProtectedRoute>} />
             </Routes>
             <VoiceAssistantWidget />
           </Router>

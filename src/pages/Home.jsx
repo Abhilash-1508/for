@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { GiOakLeaf } from 'react-icons/gi';
-import { MdArrowForward, MdPhone, MdLocationOn, MdEmail } from 'react-icons/md';
+import { MdArrowForward, MdPhone, MdLocationOn, MdEmail, MdMic } from 'react-icons/md';
 
 const Home = () => {
   const { t } = useLanguage();
@@ -20,6 +20,14 @@ const Home = () => {
       setIsSent(false);
       setContactForm({ name: '', email: '', message: '' });
     }, 3000);
+  };
+
+  const triggerVoiceAssistant = () => {
+    // Dispatch custom event or click the floating mic button
+    const micBtn = document.querySelector('button[title="Voice Assistant"]') || document.querySelector('button[title="వాయిస్ అసిస్టెంట్"]');
+    if (micBtn) {
+      micBtn.click();
+    }
   };
 
   return (
@@ -45,14 +53,23 @@ const Home = () => {
           
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
             <Link
-              to={user ? "/dashboard" : "/register"}
+              to={user ? "/dashboard" : "/marketplace"}
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-forest-green px-8 py-4 rounded-2xl text-base font-extrabold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
             >
               <span>{t('getStarted')}</span>
               <MdArrowForward className="h-5 w-5" />
             </Link>
+            
+            <button
+              onClick={triggerVoiceAssistant}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-700/80 hover:bg-emerald-600 text-white border border-emerald-400/40 px-8 py-4 rounded-2xl text-base font-extrabold shadow-lg transition-all"
+            >
+              <MdMic className="h-6 w-6 text-emerald-300 animate-pulse" />
+              <span>🎙️ Voice Assistant</span>
+            </button>
+
             <a
-              href="#about"
+              href="#features"
               className="w-full sm:w-auto bg-transparent border border-white/30 hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded-2xl text-base font-extrabold transition-all"
             >
               {t('learnMore')}

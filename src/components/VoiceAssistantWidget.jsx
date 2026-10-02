@@ -274,7 +274,7 @@ const VoiceAssistantWidget = () => {
       {/* Floating Microphone Trigger */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-forest-green hover:bg-forest-dark text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center border-4 border-white animate-bounce"
+        className="fixed bottom-6 right-6 z-[9999] bg-forest-green hover:bg-forest-dark text-white p-4 rounded-full shadow-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center border-4 border-white animate-bounce cursor-pointer"
         title={t('voiceAssistant')}
       >
         <MdMic className="h-7 w-7" />
