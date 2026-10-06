@@ -23,8 +23,7 @@ const Home = () => {
   };
 
   const triggerVoiceAssistant = () => {
-    // Dispatch custom event or click the floating mic button
-    const micBtn = document.querySelector('button[title="Voice Assistant"]') || document.querySelector('button[title="వాయిస్ అసిస్టెంట్"]');
+    const micBtn = document.querySelector('button[title="Voice Assistant"]') || document.querySelector('button[title="వాయిస్ అసిస్టెంట్"]') || document.querySelector('button[title="वॉयस असिस्टेंट"]');
     if (micBtn) {
       micBtn.click();
     }
@@ -36,13 +35,12 @@ const Home = () => {
 
       {/* Hero Section */}
       <header className="relative bg-gradient-to-b from-emerald-900 to-forest-dark text-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        {/* Background decorative forest vector circle */}
         <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-emerald-800/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-80 h-80 bg-emerald-800/10 rounded-full blur-2xl"></div>
         
         <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10 animate-fade-in">
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-white/10 text-emerald-300 border border-white/10 tracking-wider uppercase">
-            🌱 Smart Tribal Gatherers Platform
+            🌱 {t('smartGatherersTag')}
           </span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight font-display font-bold">
             {t('heroTitle')}
@@ -62,10 +60,10 @@ const Home = () => {
             
             <button
               onClick={triggerVoiceAssistant}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-700/80 hover:bg-emerald-600 text-white border border-emerald-400/40 px-8 py-4 rounded-2xl text-base font-extrabold shadow-lg transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-700/80 hover:bg-emerald-600 text-white border border-emerald-400/40 px-8 py-4 rounded-2xl text-base font-extrabold shadow-lg transition-all cursor-pointer"
             >
               <MdMic className="h-6 w-6 text-emerald-300 animate-pulse" />
-              <span>🎙️ Voice Assistant</span>
+              <span>🎙️ {t('voiceAssistant')}</span>
             </button>
 
             <a
@@ -84,7 +82,7 @@ const Home = () => {
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 text-forest-green font-bold text-sm tracking-wider uppercase">
               <GiOakLeaf className="h-5 w-5" />
-              <span>Platform Mission</span>
+              <span>{t('platformMission')}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-800 font-display">
               {t('aboutTitle')}
@@ -97,27 +95,27 @@ const Home = () => {
           
           {/* Side Info Box */}
           <div className="lg:col-span-5 bg-gradient-to-br from-emerald-800 to-forest-green text-white p-8 rounded-3xl shadow-xl space-y-6">
-            <h3 className="font-bold text-xl font-display">Impact at a Glance</h3>
+            <h3 className="font-bold text-xl font-display">{t('impactGlance')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <span className="text-2xl">🤝</span>
                 <div>
-                  <h4 className="font-bold text-sm">Direct Trading</h4>
-                  <p className="text-xs text-emerald-100">Bypasses middle-men ensuring up to 35% higher return margins for tribal collecters.</p>
+                  <h4 className="font-bold text-sm">{t('directTrading')}</h4>
+                  <p className="text-xs text-emerald-100">{t('directTradingDesc')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-2xl">🤖</span>
                 <div>
-                  <h4 className="font-bold text-sm">AI Price Forecasts</h4>
-                  <p className="text-xs text-emerald-100">Analyzes seasonal markets to recommend the most profitable harvest sale months.</p>
+                  <h4 className="font-bold text-sm">{t('aiPriceForecasts')}</h4>
+                  <p className="text-xs text-emerald-100">{t('aiPriceForecastsDesc')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-2xl">📶</span>
                 <div>
-                  <h4 className="font-bold text-sm">Offline Support</h4>
-                  <p className="text-xs text-emerald-100">Runs locally in dense forest regions and automatically syncs when signal returns.</p>
+                  <h4 className="font-bold text-sm">{t('offlineSupport')}</h4>
+                  <p className="text-xs text-emerald-100">{t('offlineSupportDesc')}</p>
                 </div>
               </li>
             </ul>
@@ -130,7 +128,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
             <h2 className="text-3xl font-extrabold text-gray-800 font-display">{t('featuresTitle')}</h2>
-            <p className="text-gray-500 text-sm">Comprehensive modules designed specifically for rural communities to enhance income and security.</p>
+            <p className="text-gray-500 text-sm">{t('featuresSubtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -150,7 +148,7 @@ const Home = () => {
                 <p className="text-gray-500 text-xs leading-relaxed">{t('featureMarketplaceDesc')}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
-                <span>Explore Marketplace →</span>
+                <span>{t('exploreMarketplace')}</span>
               </div>
             </Link>
             
@@ -170,7 +168,7 @@ const Home = () => {
                 <p className="text-gray-500 text-xs leading-relaxed">{t('featurePredictionDesc')}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
-                <span>Try Price Forecast →</span>
+                <span>{t('tryPriceForecast')}</span>
               </div>
             </Link>
 
@@ -190,7 +188,7 @@ const Home = () => {
                 <p className="text-gray-500 text-xs leading-relaxed">{t('featureSchemesDesc')}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
-                <span>Find Eligible Schemes →</span>
+                <span>{t('findEligibleSchemes')}</span>
               </div>
             </Link>
 
@@ -204,13 +202,13 @@ const Home = () => {
                   🌦️
                 </div>
                 <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
-                  <span>Weather & Advisories</span>
+                  <span>{t('weatherAdvisories')}</span>
                   <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h3>
-                <p className="text-gray-500 text-xs leading-relaxed">Village weather forecasts and agricultural gatherer advisories.</p>
+                <p className="text-gray-500 text-xs leading-relaxed">{t('weatherAdvisoriesDesc')}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
-                <span>Check Weather →</span>
+                <span>{t('checkWeather')} →</span>
               </div>
             </Link>
 
@@ -224,13 +222,13 @@ const Home = () => {
                   🩺
                 </div>
                 <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
-                  <span>Healthcare Guidance</span>
+                  <span>{t('healthcareGuidance')}</span>
                   <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h3>
-                <p className="text-gray-500 text-xs leading-relaxed">First aid steps, nearby health centers, emergency numbers, and medicinal plants.</p>
+                <p className="text-gray-500 text-xs leading-relaxed">{t('healthcareGuidanceDesc')}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
-                <span>View Health Guide →</span>
+                <span>{t('viewHealthGuide')} →</span>
               </div>
             </Link>
 
@@ -244,13 +242,13 @@ const Home = () => {
                   🎓
                 </div>
                 <h3 className="font-bold text-base text-gray-800 mb-2 font-display group-hover:text-forest-green transition-colors flex items-center justify-between">
-                  <span>Education & Training</span>
+                  <span>{t('educationTraining')}</span>
                   <MdArrowForward className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h3>
-                <p className="text-gray-500 text-xs leading-relaxed">Digital literacy, forest produce processing best practices, and scholarship portals.</p>
+                <p className="text-gray-500 text-xs leading-relaxed">{t('educationTrainingDesc')}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-bold text-forest-green">
-                <span>Start Learning →</span>
+                <span>{t('startLearning')} →</span>
               </div>
             </Link>
           </div>
@@ -264,8 +262,8 @@ const Home = () => {
           {/* Info Side */}
           <div className="lg:col-span-5 bg-gradient-to-br from-emerald-900 to-emerald-950 p-8 sm:p-12 text-white flex flex-col justify-between space-y-8">
             <div className="space-y-4">
-              <h3 className="text-2xl font-extrabold font-display">Contact Information</h3>
-              <p className="text-sm text-emerald-200">Have questions about the platform or GCC enrollment? Reach out to our regional team.</p>
+              <h3 className="text-2xl font-extrabold font-display">{t('contactInfoTitle')}</h3>
+              <p className="text-sm text-emerald-200">{t('contactInfoDesc')}</p>
             </div>
             
             <div className="space-y-6 text-sm text-emerald-100">
@@ -284,7 +282,7 @@ const Home = () => {
             </div>
             
             <div className="text-xs text-emerald-400">
-              * Dedicated helpdesks are set up at Utnoor and Bhadrachalam forest cooperative centers.
+              {t('contactNote')}
             </div>
           </div>
 
@@ -330,9 +328,9 @@ const Home = () => {
 
             <button
               type="submit"
-              className="w-full bg-forest-green hover:bg-forest-dark text-white font-extrabold py-3.5 rounded-xl transition-all shadow-md"
+              className="w-full bg-forest-green hover:bg-forest-dark text-white font-extrabold py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
             >
-              {isSent ? "Message Sent Successfully! (సంరక్షించబడింది)" : t('contactSend')}
+              {isSent ? "Message Sent Successfully!" : t('contactSend')}
             </button>
           </form>
 

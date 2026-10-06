@@ -19,7 +19,7 @@ const AddProduct = () => {
     quantity: '',
     marketPrice: '',
     description: '',
-    location: user ? `${user.village}, ${user.district}` : '',
+    location: user ? `${user.village || ''}, ${user.district || ''}`.replace(/^,\s*|,\s*$/g, '') : '',
     harvestMonth: 'July',
     image: null,
   });
@@ -28,15 +28,20 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const sellerIdVal = user?.mobile || user?.phone || user?.email || user?.id || `usr-${Date.now()}`;
       const result = await productsAPI.add({
         name: formData.name,
         category: formData.category,
         quantity: formData.quantity,
         marketPrice: parseFloat(formData.marketPrice) || 0,
         description: formData.description,
-        location: formData.location,
+        location: formData.location || (user ? `${user.village || ''}, ${user.district || ''}` : 'Adilabad Forest Region'),
         harvestMonth: formData.harvestMonth,
         image: formData.image,
+        sellerName: user?.name || 'Tribal Gatherer',
+        sellerPhone: user?.mobile || user?.phone || '+91 98480 22310',
+        sellerId: sellerIdVal,
+        seller_id: sellerIdVal,
       });
       
       if (result.success || result._queued) {
@@ -47,11 +52,11 @@ const AddProduct = () => {
         setTimeout(() => {
           setSuccess(false);
           navigate('/my-products');
-        }, 2000);
+        }, 1800);
       }
     } catch (err) {
       console.error('Error adding product:', err);
-      alert('Failed to list product. Make sure the backend server is running.');
+      alert('Failed to list product. Please check your inputs and try again.');
     }
   };
 
@@ -68,7 +73,7 @@ const AddProduct = () => {
         <main className="flex-1 space-y-6 animate-fade-in">
           <div>
             <h2 className="text-2xl font-extrabold text-gray-800 font-display">{t('addProduct')}</h2>
-            <p className="text-xs text-gray-500 font-semibold mt-1">Register a new Minor Forest Produce listing</p>
+            <p className="text-xs text-gray-500 font-semibold mt-1">Register a new Minor Forest Produce (MFP) listing</p>
           </div>
 
           <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm">
@@ -120,7 +125,7 @@ const AddProduct = () => {
                   {/* Quantity */}
                   <div className="space-y-2">
                     <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">
-                      Quantity (in kg/pieces) *
+                      Quantity (in kg/pieces/bundles) *
                     </label>
                     <input
                       type="text"
@@ -252,13 +257,13 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="px-6 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-xs font-bold transition-all"
+                    className="px-6 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
                   >
                     {t('cancel')}
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center gap-1.5 bg-forest-green hover:bg-forest-dark text-white px-8 py-3 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
+                    className="flex items-center gap-1.5 bg-forest-green hover:bg-forest-dark text-white px-8 py-3 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow cursor-pointer"
                   >
                     <MdAddCircle className="h-4.5 w-4.5" />
                     <span>{t('upload')}</span>

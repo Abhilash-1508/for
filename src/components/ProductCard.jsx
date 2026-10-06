@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { MdLocationOn, MdAccountCircle, MdTrendingUp, MdPhone, MdShoppingCart } from 'react-icons/md';
-import BuyNowModal from './BuyNowModal';
 
-const ProductCard = ({ product, onBuyNow }) => {
+const ProductCard = ({ product }) => {
   const { t } = useLanguage();
-  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (!product) return null;
 
+  const productId = product.id || product._id || product.productId;
   const name = product.name || 'Forest Product';
   const category = product.category || 'honey';
   const sellerName = product.sellerName || product.seller_name || 'Tribal Gatherer';
@@ -22,20 +22,25 @@ const ProductCard = ({ product, onBuyNow }) => {
   const image = product.image || null;
   const gradient = product.gradient || 'from-emerald-500 to-emerald-700';
 
-  const handleBuyClick = () => {
-    if (onBuyNow) {
-      onBuyNow(product);
-    } else {
-      setIsBuyModalOpen(true);
-    }
+  const handleBuyClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/product/${productId}?buy=true`);
+  };
+
+  const handleDetailsClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/product/${productId}`);
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full group">
+    <div className="bg-white dark:bg-stone-900 rounded-3xl border border-gray-100 dark:border-stone-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full group">
       
-      {/* Visual Product representation (SVG gradient or custom user-uploaded image) */}
+      {/* Visual Product representation */}
       <div 
-        className={`h-48 relative flex items-center justify-center p-6 text-white overflow-hidden ${!image ? 'bg-gradient-to-br ' + gradient : ''}`}
+        onClick={handleDetailsClick}
+        className={`h-48 relative flex items-center justify-center p-6 text-white overflow-hidden cursor-pointer ${!image ? 'bg-gradient-to-br ' + gradient : ''}`}
         style={image ? { backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
       >
         <div className={`absolute inset-0 bg-black/10 transition-opacity duration-300 ${image ? 'bg-black/35 group-hover:bg-black/45' : 'opacity-0 group-hover:opacity-100'}`}></div>
@@ -46,7 +51,10 @@ const ProductCard = ({ product, onBuyNow }) => {
               {category === 'bamboo' && '🎋'}
               {category === 'fruits' && '🍒'}
               {category === 'herbs' && '🌿'}
+              {category === 'seeds_gums' && '🌳'}
+              {category === 'leaves_fibers' && '🍃'}
               {category === 'handicrafts' && '🧺'}
+              {category === 'spices' && '🌶️'}
             </span>
           )}
           <h4 className="font-bold text-lg mt-2 tracking-tight drop-shadow font-display">{name}</h4>
@@ -69,14 +77,15 @@ const ProductCard = ({ product, onBuyNow }) => {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
           {/* Seller and Location */}
-          <div className="flex items-center justify-between gap-1 text-xs text-gray-500 font-semibold">
+          <div className="flex items-center justify-between gap-1 text-xs text-gray-500 dark:text-stone-400 font-semibold">
             <div className="flex items-center gap-1.5 truncate">
               <MdAccountCircle className="h-4 w-4 text-forest-green flex-shrink-0" />
               <span className="truncate">{sellerName}</span>
             </div>
             <a
               href={`tel:${sellerPhone}`}
-              className="text-forest-green hover:bg-emerald-50 p-1 rounded-lg transition-colors flex items-center gap-0.5 text-[10px] font-bold border border-emerald-100/50"
+              onClick={(e) => e.stopPropagation()}
+              className="text-forest-green hover:bg-emerald-50 dark:hover:bg-emerald-950 p-1 rounded-lg transition-colors flex items-center gap-0.5 text-[10px] font-bold border border-emerald-100/50"
               title={t('contactSeller')}
             >
               <MdPhone className="h-3.5 w-3.5" />
@@ -84,26 +93,26 @@ const ProductCard = ({ product, onBuyNow }) => {
             </a>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-stone-400 font-medium">
             <MdLocationOn className="h-4 w-4 text-emerald-600 flex-shrink-0" />
             <span className="truncate">{location}</span>
           </div>
 
           {/* Quantity pill */}
           <div className="pt-1">
-            <span className="bg-gray-100 text-gray-700 font-bold text-xs px-2.5 py-1 rounded-lg">
+            <span className="bg-gray-100 dark:bg-stone-800 text-gray-700 dark:text-stone-300 font-bold text-xs px-2.5 py-1 rounded-lg">
               {t('quantity')}: {quantity}
             </span>
           </div>
         </div>
 
         {/* Pricing Layout */}
-        <div className="bg-sage-accent/40 rounded-2xl p-3 border border-emerald-100/30 grid grid-cols-2 gap-2 text-center">
+        <div className="bg-sage-accent/40 dark:bg-stone-800/60 rounded-2xl p-3 border border-emerald-100/30 dark:border-stone-700 grid grid-cols-2 gap-2 text-center">
           <div>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{t('marketPrice')}</p>
-            <p className="text-sm font-extrabold text-gray-700">₹{marketPrice}</p>
+            <p className="text-[10px] font-bold text-gray-500 dark:text-stone-400 uppercase tracking-wide">{t('marketPrice')}</p>
+            <p className="text-sm font-extrabold text-gray-700 dark:text-stone-200">₹{marketPrice}</p>
           </div>
-          <div className="border-l border-emerald-100/50 flex flex-col justify-center items-center">
+          <div className="border-l border-emerald-100/50 dark:border-stone-700 flex flex-col justify-center items-center">
             <div className="flex items-center gap-0.5 text-forest-green">
               <MdTrendingUp className="h-3.5 w-3.5" />
               <p className="text-[10px] font-bold uppercase tracking-wide">{t('predictedPrice')}</p>
@@ -115,8 +124,8 @@ const ProductCard = ({ product, onBuyNow }) => {
         {/* Dual Action CTA Buttons */}
         <div className="grid grid-cols-2 gap-2 pt-1">
           <Link
-            to={`/product/${product.id || product._id || product.productId}`}
-            className="border border-emerald-300 text-forest-green hover:bg-emerald-50 text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center"
+            to={`/product/${productId}`}
+            className="border border-emerald-300 text-forest-green hover:bg-emerald-50 dark:hover:bg-emerald-950 text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center cursor-pointer"
           >
             {t('viewDetails')}
           </Link>
@@ -130,13 +139,6 @@ const ProductCard = ({ product, onBuyNow }) => {
           </button>
         </div>
       </div>
-
-      {/* Buy Now Modal */}
-      <BuyNowModal
-        product={product}
-        isOpen={isBuyModalOpen}
-        onClose={() => setIsBuyModalOpen(false)}
-      />
 
     </div>
   );

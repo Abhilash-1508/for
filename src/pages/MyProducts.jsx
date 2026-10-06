@@ -8,7 +8,6 @@ import Sidebar from '../components/Sidebar';
 import { PRODUCTS } from '../data/mockData';
 import { MdEdit as EditIcon, MdDelete as DeleteIcon, MdAddCircle as AddIcon, MdTrendingUp as TrendIcon, MdLocationOn as LocationIcon } from 'react-icons/md';
 
-
 const MyProducts = () => {
   const { user, updateProfile } = useAuth();
   const { t } = useLanguage();
@@ -18,7 +17,11 @@ const MyProducts = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchMyProducts = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setUserProducts([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const result = await productsAPI.getAll();
@@ -26,15 +29,44 @@ const MyProducts = () => {
         ? result.products 
         : PRODUCTS;
         
-      const mine = allProducts.filter(p =>
-        (p.seller_name || p.sellerName) === user.name ||
-        (p.seller_id && String(p.seller_id) === String(user.id))
-      );
-      setUserProducts(mine.length > 0 ? mine : PRODUCTS.slice(0, 2));
+      const userMobile = (user.mobile || user.phone || '').trim();
+      const userIdStr = user.id ? String(user.id).trim() : '';
+      const userEmail = (user.email || '').trim().toLowerCase();
+
+      const mine = allProducts.filter(p => {
+        if (!p) return false;
+        const pSellerId = String(p.sellerId || p.seller_id || '').trim();
+        const pSellerPhone = String(p.sellerPhone || p.seller_phone || '').trim();
+
+        if (pSellerId && (pSellerId === userMobile || pSellerId === userIdStr || (userEmail && pSellerId === userEmail))) {
+          return true;
+        }
+        if (pSellerPhone && userMobile) {
+          const cleanPhoneP = pSellerPhone.replace(/\D/g, '');
+          const cleanPhoneU = userMobile.replace(/\D/g, '');
+          if (cleanPhoneP && cleanPhoneU && (cleanPhoneP === cleanPhoneU || cleanPhoneP.endsWith(cleanPhoneU) || cleanPhoneU.endsWith(cleanPhoneP))) {
+            return true;
+          }
+        }
+        return false;
+      });
+      
+      setUserProducts(mine);
     } catch (err) {
       console.error('Error fetching my products:', err);
-      const mine = PRODUCTS.filter(p => (p.seller_name || p.sellerName) === user.name);
-      setUserProducts(mine.length > 0 ? mine : PRODUCTS.slice(0, 2));
+      const userMobile = (user?.mobile || user?.phone || '').trim();
+      const userIdStr = user?.id ? String(user.id).trim() : '';
+      const userEmail = (user?.email || '').trim().toLowerCase();
+
+      const mine = PRODUCTS.filter(p => {
+        const pSellerId = String(p.sellerId || p.seller_id || '').trim();
+        const pSellerPhone = String(p.sellerPhone || p.seller_phone || '').trim();
+        return (
+          (pSellerId && (pSellerId === userMobile || pSellerId === userIdStr || (userEmail && pSellerId === userEmail))) ||
+          (pSellerPhone && userMobile && pSellerPhone.replace(/\D/g, '').endsWith(userMobile.replace(/\D/g, '')))
+        );
+      });
+      setUserProducts(mine);
     } finally {
       setLoading(false);
     }
@@ -48,10 +80,10 @@ const MyProducts = () => {
     if (confirm("Are you sure you want to delete this listing?")) {
       try {
         await productsAPI.delete(id);
-        const updated = userProducts.filter(p => p.id !== id);
+        const updated = userProducts.filter(p => String(p.id) !== String(id));
         setUserProducts(updated);
         if (user) {
-          updateProfile({ activeUploadsCount: Math.max(0, user.activeUploadsCount - 1) });
+          updateProfile({ activeUploadsCount: Math.max(0, (user.activeUploadsCount || 1) - 1) });
         }
       } catch (err) {
         console.error('Error deleting product:', err);
@@ -79,12 +111,12 @@ const MyProducts = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-extrabold text-gray-800 font-display">{t('myProducts')}</h2>
-              <p className="text-xs text-gray-500 font-semibold mt-1">Manage your active forest produce listings</p>
+              <p className="text-xs text-gray-500 font-semibold mt-1">Manage your uploaded forest produce listings</p>
             </div>
             
             <button
               onClick={() => navigate('/add-product')}
-              className="flex items-center justify-center gap-1.5 bg-forest-green hover:bg-forest-dark text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
+              className="flex items-center justify-center gap-1.5 bg-forest-green hover:bg-forest-dark text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow cursor-pointer"
             >
               <AddIcon className="h-4.5 w-4.5" />
               <span>{t('addProduct')}</span>
@@ -109,7 +141,10 @@ const MyProducts = () => {
                         {product.category === 'bamboo' && '🎋'}
                         {product.category === 'fruits' && '🍒'}
                         {product.category === 'herbs' && '🌿'}
+                        {product.category === 'seeds_gums' && '🌳'}
+                        {product.category === 'leaves_fibers' && '🍃'}
                         {product.category === 'handicrafts' && '🧺'}
+                        {product.category === 'spices' && '🌶️'}
                       </span>
                       <div>
                         <h4 className="font-bold text-sm text-gray-800 font-display">{product.name}</h4>
@@ -122,14 +157,14 @@ const MyProducts = () => {
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => handleEdit(product.id)}
-                        className="p-2 bg-gray-50 hover:bg-emerald-50 text-gray-500 hover:text-forest-green border border-gray-100 hover:border-emerald-100 rounded-lg transition-colors"
+                        className="p-2 bg-gray-50 hover:bg-emerald-50 text-gray-500 hover:text-forest-green border border-gray-100 hover:border-emerald-100 rounded-lg transition-colors cursor-pointer"
                         title={t('edit')}
                       >
                         <EditIcon className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="p-2 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-600 border border-gray-100 hover:border-red-100 rounded-lg transition-colors"
+                        className="p-2 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-600 border border-gray-100 hover:border-red-100 rounded-lg transition-colors cursor-pointer"
                         title={t('delete')}
                       >
                         <DeleteIcon className="h-4 w-4" />
@@ -145,7 +180,7 @@ const MyProducts = () => {
                     </div>
                     <div className="flex items-center gap-1 justify-end">
                       <LocationIcon className="text-emerald-600 h-4 w-4 flex-shrink-0" />
-                      <span className="truncate text-gray-700">{product.location.split(',')[0]}</span>
+                      <span className="truncate text-gray-700">{String(product.location || '').split(',')[0]}</span>
                     </div>
                   </div>
 
@@ -171,10 +206,10 @@ const MyProducts = () => {
             <div className="text-center py-16 bg-white border border-gray-100 rounded-3xl space-y-4">
               <span className="text-4xl block">🧺</span>
               <h3 className="font-bold text-lg text-gray-700 font-display">No Active Listings</h3>
-              <p className="text-xs text-gray-400 max-w-xs mx-auto leading-relaxed">You haven't uploaded any forest produce for sale yet.</p>
+              <p className="text-xs text-gray-400 max-w-xs mx-auto leading-relaxed">You haven't uploaded any forest produce for sale under your account yet.</p>
               <button
                 onClick={() => navigate('/add-product')}
-                className="mt-2 bg-forest-green hover:bg-forest-dark text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-sm"
+                className="mt-2 bg-forest-green hover:bg-forest-dark text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
               >
                 Upload First Product
               </button>

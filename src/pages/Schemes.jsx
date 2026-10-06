@@ -11,7 +11,7 @@ const Schemes = () => {
   
   // Profile Search Filter States
   const [age, setAge] = useState('');
-  const [occupation, setOccupation] = useState('gatherer');
+  const [occupation, setOccupation] = useState('all');
   const [income, setIncome] = useState('');
   const [state, setState] = useState('Telangana');
   const [allSchemes, setAllSchemes] = useState([]);
@@ -27,7 +27,7 @@ const Schemes = () => {
     setLoading(true);
     try {
       const result = await schemesAPI.getAll();
-      if (result.success && result.schemes && result.schemes.length > 0) {
+      if (result && result.success && Array.isArray(result.schemes) && result.schemes.length >= 5) {
         setAllSchemes(result.schemes);
         setFilteredSchemes(result.schemes);
       } else {
@@ -35,7 +35,7 @@ const Schemes = () => {
         setFilteredSchemes(SCHEMES);
       }
     } catch (err) {
-      console.error("Failed to fetch schemes, using mock data:", err);
+      console.error("Failed to fetch schemes, using fallback SCHEMES:", err);
       setAllSchemes(SCHEMES);
       setFilteredSchemes(SCHEMES);
     } finally {
@@ -52,26 +52,25 @@ const Schemes = () => {
     
     let matches = allSchemes.filter(scheme => {
       if (!scheme) return false;
-      const elg = String(scheme.eligibility).toLowerCase();
-      
+      const elg = String(scheme.eligibility || '').toLowerCase();
+      const cat = String(scheme.category || '').toLowerCase();
+
       // 1. Occupation Match
-      let matchesOcc = false;
+      let matchesOcc = true;
       if (occ === 'gatherer') {
-        matchesOcc = ['livelihood', 'economic', 'welfare'].includes(scheme.category);
+        matchesOcc = ['livelihood', 'financial', 'economic', 'welfare'].includes(cat);
       } else if (occ === 'farmer') {
-        matchesOcc = ['agriculture', 'economic'].includes(scheme.category);
+        matchesOcc = ['livelihood', 'financial', 'economic', 'agriculture'].includes(cat);
       } else if (occ === 'artisan') {
-        matchesOcc = ['livelihood', 'agriculture'].includes(scheme.category);
-      } else {
-        matchesOcc = true;
+        matchesOcc = ['livelihood', 'financial', 'economic'].includes(cat);
+      } else if (occ === 'student') {
+        matchesOcc = ['education'].includes(cat);
       }
       
       // 2. State Match
       let matchesState = true;
       if (st && st !== 'all') {
-        if (st.includes('telangana')) {
-          matchesState = elg.includes('telangana') || elg.includes('tribal') || elg.includes('gatherer') || elg.includes('all') || elg.includes('traditional');
-        }
+        matchesState = elg.includes('telangana') || elg.includes('andhra') || elg.includes('tribal') || elg.includes('gatherer') || elg.includes('all') || elg.includes('india') || elg.includes('scheduled');
       }
       
       return matchesOcc && matchesState;
@@ -82,7 +81,7 @@ const Schemes = () => {
 
   const handleReset = () => {
     setAge('');
-    setOccupation('gatherer');
+    setOccupation('all');
     setIncome('');
     setState('Telangana');
     setFilteredSchemes(allSchemes);
@@ -129,15 +128,17 @@ const Schemes = () => {
 
               {/* Occupation Input */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">Occupation</label>
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">Occupation Category</label>
                 <select
                   value={occupation}
                   onChange={(e) => setOccupation(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-forest-green transition-all"
                 >
-                  <option value="gatherer">Forest Gatherer (సేకరణదారుడు)</option>
-                  <option value="farmer">Bamboo/Amla Farmer (రైతు)</option>
-                  <option value="artisan">Handicrafts Artisan (కళాకారుడు)</option>
+                  <option value="all">All Categories</option>
+                  <option value="gatherer">Forest Gatherer / SHG Member</option>
+                  <option value="farmer">Agro-Forestry / Bamboo Farmer</option>
+                  <option value="artisan">Handicrafts Artisan</option>
+                  <option value="student">Student / Education Scholar</option>
                 </select>
               </div>
 
@@ -168,7 +169,7 @@ const Schemes = () => {
               <div className="space-y-2 pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-forest-green hover:bg-forest-dark text-white font-extrabold py-3 rounded-xl text-xs transition-all shadow-sm hover:shadow"
+                  className="w-full bg-forest-green hover:bg-forest-dark text-white font-extrabold py-3 rounded-xl text-xs transition-all shadow-sm hover:shadow cursor-pointer"
                 >
                   {t('findSchemesBtn')}
                 </button>
@@ -176,7 +177,7 @@ const Schemes = () => {
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="w-full border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold py-2.5 rounded-xl text-xs transition-all"
+                    className="w-full border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer"
                   >
                     Clear Results
                   </button>
@@ -194,64 +195,89 @@ const Schemes = () => {
                   <p className="text-sm text-gray-500 font-semibold">Loading schemes...</p>
                 </div>
               ) : filteredSchemes.length > 0 ? (
-                filteredSchemes.map((scheme) => (
-                  <div key={scheme.id} className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow space-y-4">
-                    
-                    {/* Header info */}
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <span className="bg-emerald-50 text-forest-green font-extrabold text-[9px] px-2.5 py-1 rounded-full border border-emerald-100/30 uppercase tracking-wider">
-                          {scheme.tag}
-                        </span>
-                        <h3 className="font-bold text-base text-gray-800 font-display">
-                          {scheme.name}
-                        </h3>
-                        {language === 'te' && (
-                          <h4 className="text-xs font-bold text-forest-green">{scheme.name_local || scheme.nameLocal}</h4>
-                        )}
-                      </div>
+                filteredSchemes.map((scheme) => {
+                  const catLabel = scheme.category || 'Livelihood';
+                  
+                  return (
+                    <div key={scheme.id} className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow space-y-4">
                       
-                      <div className="p-3 bg-emerald-50 text-forest-green rounded-2xl">
-                        <MdGavel className="h-6 w-6" />
-                      </div>
-                    </div>
+                      {/* Header info */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            {/* Category Badge */}
+                            <span className={`font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider border ${
+                              catLabel === 'Livelihood' ? 'bg-emerald-50 text-forest-green border-emerald-200' :
+                              catLabel === 'Financial' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                              catLabel === 'Education' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                              'bg-purple-50 text-purple-700 border-purple-200'
+                            }`}>
+                              {catLabel}
+                            </span>
 
-                    {/* Technical terms layout */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="space-y-1">
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('schemeEligibility')}</p>
-                        <p className="font-semibold text-gray-700 leading-relaxed">{scheme.eligibility}</p>
-                      </div>
-                      <div className="space-y-1 sm:border-l sm:border-gray-100 sm:pl-4">
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('schemeBenefits')}</p>
-                        <p className="font-semibold text-gray-700 leading-relaxed">{scheme.benefits}</p>
-                      </div>
-                    </div>
+                            {scheme.tag && scheme.tag !== catLabel && (
+                              <span className="bg-gray-100 text-gray-600 font-bold text-[10px] px-2.5 py-0.5 rounded-full">
+                                {scheme.tag}
+                              </span>
+                            )}
+                          </div>
 
-                    {/* How to Apply collapse section */}
-                    <div className="bg-emerald-50/40 border border-emerald-100/35 rounded-2xl p-4 flex items-start gap-3 text-xs">
-                      <MdInfo className="h-5 w-5 text-forest-green flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-bold text-emerald-950 uppercase tracking-wider text-[9px] mb-1">{t('applyNow')}</p>
-                        <p className="font-semibold text-emerald-900 leading-relaxed">{scheme.apply_procedure || scheme.applyProcedure}</p>
+                          {/* Scheme Name */}
+                          <h3 className="font-extrabold text-base text-gray-800 dark:text-stone-100 font-display leading-snug">
+                            {scheme.name}
+                          </h3>
+
+                          {/* Local Language Subtitles */}
+                          {language === 'hi' && scheme.nameHi && (
+                            <h4 className="text-xs font-bold text-forest-green">{scheme.nameHi}</h4>
+                          )}
+                          {language === 'te' && (scheme.nameTe || scheme.nameLocal || scheme.name_local) && (
+                            <h4 className="text-xs font-bold text-forest-green">{scheme.nameTe || scheme.nameLocal || scheme.name_local}</h4>
+                          )}
+                        </div>
+                        
+                        <div className="p-3 bg-emerald-50 text-forest-green rounded-2xl flex-shrink-0">
+                          <MdGavel className="h-6 w-6" />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Official Scheme Portal Link */}
-                    <div className="flex justify-end pt-1">
-                      <a
-                        href={scheme.url || scheme.officialUrl || 'https://pmvdky.trifed.gov.in'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-emerald-50 hover:bg-forest-green text-forest-green hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-emerald-100/50 cursor-pointer shadow-2xs"
-                      >
-                        <span>Apply Online (Official Portal)</span>
-                        <MdOutlineArrowForward />
-                      </a>
-                    </div>
+                      {/* Technical terms layout: Eligibility & Key Benefits */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div className="space-y-1 bg-gray-50/70 p-3.5 rounded-2xl border border-gray-100">
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('schemeEligibility')}</p>
+                          <p className="font-semibold text-gray-700 leading-relaxed">{scheme.eligibility}</p>
+                        </div>
+                        <div className="space-y-1 bg-emerald-50/40 p-3.5 rounded-2xl border border-emerald-100/40">
+                          <p className="text-[10px] text-emerald-800 font-bold uppercase tracking-wide">{t('schemeBenefits')}</p>
+                          <p className="font-semibold text-gray-700 leading-relaxed">{scheme.benefits}</p>
+                        </div>
+                      </div>
 
-                  </div>
-                ))
+                      {/* How to Apply Procedure */}
+                      <div className="bg-sage-accent/30 border border-emerald-100/50 rounded-2xl p-4 flex items-start gap-3 text-xs">
+                        <MdInfo className="h-5 w-5 text-forest-green flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-emerald-950 uppercase tracking-wider text-[9px] mb-1">{t('applyNow')}</p>
+                          <p className="font-semibold text-emerald-900 leading-relaxed">{scheme.apply_procedure || scheme.applyProcedure}</p>
+                        </div>
+                      </div>
+
+                      {/* Official Scheme Portal Link */}
+                      <div className="flex justify-end pt-1">
+                        <a
+                          href={scheme.url || scheme.officialUrl || 'https://pmvdky.trifed.gov.in'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 bg-forest-green hover:bg-forest-dark text-white px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-sm hover:shadow cursor-pointer"
+                        >
+                          <span>Apply / Know More</span>
+                          <MdOutlineArrowForward className="h-4 w-4" />
+                        </a>
+                      </div>
+
+                    </div>
+                  );
+                })
               ) : (
                 <div className="text-center py-16 bg-white border border-gray-100 rounded-3xl space-y-4">
                   <span className="text-4xl block">📋</span>
@@ -261,7 +287,7 @@ const Schemes = () => {
                   </p>
                   <button
                     onClick={handleReset}
-                    className="mt-2 bg-emerald-50 text-forest-green hover:bg-forest-green hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-emerald-100/50"
+                    className="mt-2 bg-emerald-50 text-forest-green hover:bg-forest-green hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-emerald-100/50 cursor-pointer"
                   >
                     Reset Form
                   </button>

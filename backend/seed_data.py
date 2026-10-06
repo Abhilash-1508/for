@@ -30,7 +30,7 @@ def seed_users():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (name, mobile, email, pw_hash, village, district, state, lang, role))
         except Exception:
-            pass  # Skip duplicates on re-seed
+            pass
 
     conn.commit()
     conn.close()
@@ -58,7 +58,7 @@ def seed_products():
          "Sun-dried organic gooseberries, manually harvested from deep forest tracts. High vitamin C content, processed naturally without chemical preservatives.",
          "from-lime-400 to-lime-600", "Best Price Forecast", "January", "High"),
 
-        ("Mahua Flowers - Sun-dried (విప్ప పూలు)", "fruits", 4, "Laxmi Madavi", "+91 96182 33455",
+        ("Mahua Flowers - Sun-dried (విప్ప పూలు)", "seeds_gums", 4, "Laxmi Madavi", "+91 96182 33455",
          "Indervelly Forest, Adilabad District", "250 kg", 65, 85,
          "High-quality, freshly fallen Mahua flowers, collected at dawn and sun-dried on clean mats. Used widely for traditional food products and oil extraction.",
          "from-yellow-600 to-amber-800", "Stable Price", "April", "Medium"),
@@ -72,6 +72,16 @@ def seed_products():
          "Bhadrachalam, Bhadradri Kothagudem", "60 items", 180, 220,
          "Finely split and hand-woven utility baskets. Made using traditional patterns passed down generations. Sturdy, eco-friendly, and lightweight.",
          "from-amber-700 to-yellow-900", "Artisanal", "Year-Round", "Medium"),
+
+        ("Wild Turmeric & Black Pepper (అడవి పసుపు & మిరియాలు)", "spices", 1, "Bheemrao Soyam", "+91 98491 55667",
+         "Jainoor Forest Range, Adilabad", "95 kg", 210, 260,
+         "Organic forest-grown wild turmeric rhizomes and sun-dried aromatic black pepper. Rich in curcumin and high in natural essential oils.",
+         "from-amber-500 to-orange-700", "High Quality", "February", "High"),
+
+        ("Tendu Leaves Bundle (తునికి ఆకులు)", "leaves_fibers", 1, "Gond Van Sahakari Society", "+91 94901 33211",
+         "Asifabad Forest Division", "1500 bundles", 45, 55,
+         "Premium hand-picked season Tendu leaves tied in standard bundles. Clean, dry, flexible leaves stored in climate-controlled godowns.",
+         "from-emerald-700 to-green-900", "Bulk Ready", "May", "High")
     ]
 
     for p in products:
@@ -95,29 +105,47 @@ def seed_schemes():
     cursor = conn.cursor()
 
     schemes = [
-        ("Pradhan Mantri Van Dhan Yojana (PMVDY)", "ప్రధాన మంత్రి వన్ ధన్ యోజన", "livelihood",
-         "Tribal gatherers, members of Van Dhan Self-Help Groups (SHGs).",
-         "Funding of ₹15 Lakhs per Van Dhan Vikas Kendra (300 members) for value addition infrastructure, tools, packaging machinery, and skill development training.",
-         "Form a Self-Help Group of 15-20 gatherers and register via District Nodal Officer or Tribal Development Department portal.",
+        ("Pradhan Mantri Van Dhan Yojana (PMVDY)", "ప్రధాన మంత్రి వన్ ధన్ యోజన", "Livelihood",
+         "Tribal gatherers, members of Van Dhan Self-Help Groups (SHGs) and forest cooperatives.",
+         "Funding of ₹15 Lakhs per Van Dhan Vikas Kendra (300 members) for value addition tools, solar dryers, packaging machinery, and skill training.",
+         "Form a Self-Help Group of 15-20 gatherers and register via District Nodal Officer or TRIFED PMVDY Portal.",
          "Recommended"),
 
-        ("Minimum Support Price (MSP) for MFP", "అటవీ ఉత్పత్తులకు కనీస మద్దతు ధర", "economic",
-         "All registered tribal forest gatherers selling declared Minor Forest Produce.",
-         "Ensures floor prices for 73+ minor forest products (including Honey, Amla, Mahua, Tamarind). Direct bank transfer (DBT) to prevent exploitation by middlemen.",
-         "Register with the local Primary Procurement Center run by GCC (Girijan Co-operative Corporation) or forest department.",
+        ("Minimum Support Price (MSP) for Minor Forest Produce (MSP for MFP)", "అటవీ ఉత్పత్తులకు కనీస మద్దతు ధర", "Financial",
+         "All registered tribal forest gatherers selling declared Minor Forest Produce items.",
+         "Floor price protection for 87+ notified minor forest products (Honey, Amla, Mahua, Tamarind, Karaya Gum). Direct bank transfer (DBT).",
+         "Register with the local Primary Procurement Center run by GCC (Girijan Co-operative Corporation) or Forest Department.",
          "Financial Support"),
 
-        ("National Bamboo Mission (NBM)", "జాతీయ వెదురు మిషన్", "agriculture",
-         "Farmers, artisans, and cooperatives owning suitable land for bamboo plantation.",
-         "Up to 50% subsidy (₹50,000 per hectare) for raising bamboo nurseries and plantations, along with technical support and marketing assistance.",
-         "Submit application with land records and layout plan to state horticulture/forest nodal officers.",
-         "Subsidy"),
+        ("Girijan Cooperative Corporation (GCC) Procurement Scheme", "గిరిజన సహకార సంస్థ (GCC) సేకరణ పథకం", "Financial",
+         "Tribal gatherers in Telangana & Andhra Pradesh forest regions.",
+         "Guaranteed door-step fair price procurement of forest produce, prompt cash/digital payment, micro-credit access, and seasonal advance payouts.",
+         "Enroll at your nearest GCC Divisional Office or Primary Marketing Society with Aadhar & Bank Passbook.",
+         "State Guarantee"),
 
-        ("FRA (Forest Rights Act) Community Title Benefits", "అటవీ హక్కుల చట్టం ప్రయోజనాలు", "welfare",
-         "Traditional forest dwellers and Scheduled Tribes residing in forest lands prior to Dec 2005.",
-         "Legal recognition of rights to use, manage, and sell minor forest produce, construct minor check dams, and access community forest resources.",
-         "Submit claim form through local Gram Sabha (Village Committee) to Sub-Divisional Committee.",
-         "Legal Title"),
+        ("PM-JANMAN (Pradhan Mantri Janjati Adivasi Nyaya Maha Abhiyan)", "పీఎం-జన్మన్ (ప్రధాన మంత్రి జనజాతి ఆదివాసీ న్యాయ్ మహా అభియాన్)", "Livelihood",
+         "Particularly Vulnerable Tribal Groups (PVTGs) and tribal habitations across forest belts.",
+         "Comprehensive electrification, Pucca housing (PMAY-G), clean drinking water pipelines, mobile medical units, and VDVK multi-purpose facility centers.",
+         "Applications processed through District Tribal Welfare Nodal Officers and Gram Sabha enumeration camps.",
+         "Priority Mission"),
+
+        ("TRIFED Retail & E-Commerce Marketing Linkage", "ట్రైఫెడ్ రిటైల్ & ఈ-కామర్స్ మార్కెటింగ్ లింకేజ్", "Livelihood",
+         "Tribal artisans, gatherers, SHGs, and forest product producers.",
+         "Listing and direct sale of products on Tribes India retail outlets, Amazon, Flipkart, and GeM portal with zero platform commission.",
+         "Submit sample products and SHG certification to regional TRIFED office for quality auditing and cataloging.",
+         "Market Linkage"),
+
+        ("National Scheduled Tribes Finance and Development Corporation (NSTFDC) Term Loan Scheme", "జాతీయ షెడ్యూల్డ్ తెగల ఆర్థిక మరియు అభివృద్ధి సంస్థ రుణాలు", "Financial",
+         "Scheduled Tribe individuals or SHGs with annual family income up to ₹3,00,000.",
+         "Concessional loans up to ₹10 Lakhs for setting up agro-processing units, bamboo workshops, and forest produce value-addition business with interest as low as 6% p.a.",
+         "Apply through State Channelizing Agencies (SCA) or Scheduled Commercial Banks handling tribal welfare funds.",
+         "Low Interest Loan"),
+
+        ("Eklavya Model Residential Schools (EMRS) & Scholarship Scheme", "ఏకలవ్య మోడల్ గురుకుల పాఠశాలలు & స్కాలర్‌షిప్ పథకం", "Education",
+         "ST students from Class 6 to 12 and higher education tribal scholars.",
+         "100% free quality boarding education, uniforms, textbooks, computer labs, sports coaching, and full pre/post-matric scholarship grants.",
+         "Apply online via National Scholarship Portal (NSP) or State EMRS Admission Entrance Portal.",
+         "Education Welfare")
     ]
 
     for s in schemes:
@@ -139,36 +167,11 @@ def seed_price_history():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Base prices and seasonal patterns for each product type
     product_configs = {
-        'honey': {
-            'base_price': 280,
-            'seasonal_peaks': [4, 5, 6],  # April-June (harvest season)
-            'seasonal_low': [11, 12, 1],
-            'volatility': 25,
-            'trend': 3.5  # Monthly upward trend
-        },
-        'bamboo': {
-            'base_price': 95,
-            'seasonal_peaks': [10, 11, 12],  # Oct-Dec (construction season)
-            'seasonal_low': [5, 6, 7],
-            'volatility': 12,
-            'trend': 1.5
-        },
-        'fruits': {
-            'base_price': 70,
-            'seasonal_peaks': [1, 2, 8],  # Post-harvest peaks
-            'seasonal_low': [5, 6, 7],
-            'volatility': 15,
-            'trend': 2.0
-        },
-        'herbs': {
-            'base_price': 120,
-            'seasonal_peaks': [10, 11, 3],  # Ayurvedic demand peaks
-            'seasonal_low': [6, 7, 8],
-            'volatility': 18,
-            'trend': 2.5
-        }
+        'honey': {'base_price': 280, 'seasonal_peaks': [4, 5, 6], 'seasonal_low': [11, 12, 1], 'volatility': 25, 'trend': 3.5},
+        'bamboo': {'base_price': 95, 'seasonal_peaks': [10, 11, 12], 'seasonal_low': [5, 6, 7], 'volatility': 12, 'trend': 1.5},
+        'fruits': {'base_price': 70, 'seasonal_peaks': [1, 2, 8], 'seasonal_low': [5, 6, 7], 'volatility': 15, 'trend': 2.0},
+        'herbs': {'base_price': 120, 'seasonal_peaks': [10, 11, 3], 'seasonal_low': [6, 7, 8], 'volatility': 18, 'trend': 2.5}
     }
 
     rainfall_by_month = {
@@ -180,7 +183,7 @@ def seed_price_history():
         for year in [2024, 2025, 2026]:
             for month in range(1, 13):
                 if year == 2026 and month > 7:
-                    continue  # Don't generate future data
+                    continue
 
                 base = config['base_price']
                 months_elapsed = (year - 2024) * 12 + month
@@ -195,9 +198,7 @@ def seed_price_history():
 
                 noise = random.uniform(-config['volatility'] * 0.3, config['volatility'] * 0.3)
                 price = round(base + trend_adj + seasonal_adj + noise, 2)
-
                 rainfall = rainfall_by_month[month] + random.uniform(-10, 10)
-
                 demand = 'High' if month in config['seasonal_peaks'] else ('Low' if month in config['seasonal_low'] else 'Medium')
 
                 cursor.execute('''
@@ -207,7 +208,7 @@ def seed_price_history():
 
     conn.commit()
     conn.close()
-    print("✅ Price history seeded (2+ years of monthly data for ML training).")
+    print("✅ Price history seeded.")
 
 
 if __name__ == '__main__':

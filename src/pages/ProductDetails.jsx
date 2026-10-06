@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { AI_PREDICTIONS, PRODUCTS } from '../data/mockData';
 import { productsAPI, predictionAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
@@ -16,17 +16,26 @@ import {
   MdShoppingCart, 
   MdShield, 
   MdCheckCircle,
-  MdInfoOutline
+  MdInfoOutline,
+  MdArrowBack
 } from 'react-icons/md';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [aiTrend, setAiTrend] = useState(null);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('buy') === 'true') {
+      setIsBuyModalOpen(true);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,7 +46,6 @@ const ProductDetails = () => {
         if (result && result.success && result.product) {
           p = result.product;
         } else {
-          // Fallback to searching mock PRODUCTS array
           const cleanId = String(id);
           p = PRODUCTS.find(item => {
             const itemId = String(item.id || item._id || '');
@@ -125,13 +133,13 @@ const ProductDetails = () => {
       <div className="min-h-screen flex flex-col bg-bg-forest dark:bg-stone-950">
         <Navbar />
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 border border-stone-200 dark:border-stone-800 text-center max-w-sm shadow-sm">
-            <span className="text-4xl block mb-4">🌿</span>
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 border border-stone-200 dark:border-stone-800 text-center max-w-sm shadow-sm space-y-3">
+            <span className="text-4xl block">🌿</span>
             <h3 className="font-bold text-lg text-stone-800 dark:text-stone-100 font-display">Product Listing Not Found</h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">The product you are looking for is unavailable or has been archived.</p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">The product you are looking for is unavailable or has been archived.</p>
             <button 
               onClick={() => navigate('/marketplace')} 
-              className="mt-6 inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+              className="mt-4 inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
               ← Back to Marketplace
             </button>
@@ -143,7 +151,6 @@ const ProductDetails = () => {
 
   const activeAiTrend = aiTrend || AI_PREDICTIONS[product.category] || AI_PREDICTIONS.honey;
 
-  // Split name into English title and Telugu/Hindi localized title if enclosed in parentheses
   const rawName = product.name || 'Forest Product';
   let mainTitle = rawName;
   let localTitle = '';
@@ -153,7 +160,6 @@ const ProductDetails = () => {
     localTitle = rawName.substring(parenIndex + 1, rawName.indexOf(')') !== -1 ? rawName.indexOf(')') : rawName.length).trim();
   }
 
-  // Calculate MSP (Minimum Support Price baseline calculation)
   const mspPrice = Math.round(product.marketPrice * 0.82);
   const mspGain = Math.max(0, product.marketPrice - mspPrice);
 
@@ -169,13 +175,14 @@ const ProductDetails = () => {
         {/* Main Product Details View */}
         <main className="flex-1 space-y-6 animate-fade-in">
           
-          {/* Requirement explicit Back Button */}
+          {/* Back Button */}
           <div>
             <button 
-              onClick={() => navigate(-1)} 
-              className="inline-flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium mb-2 transition-colors cursor-pointer text-sm"
+              onClick={() => navigate('/marketplace')} 
+              className="inline-flex items-center gap-1.5 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold mb-2 transition-colors cursor-pointer text-xs bg-white dark:bg-stone-900 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-2xs"
             >
-              ← Back to Marketplace
+              <MdArrowBack className="h-4 w-4" />
+              <span>Back to Marketplace</span>
             </button>
           </div>
 
@@ -190,7 +197,6 @@ const ProductDetails = () => {
                 className={`relative rounded-3xl overflow-hidden shadow-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between p-6 min-h-[320px] lg:min-h-[380px] group ${!product.image ? 'bg-gradient-to-br ' + (product.gradient || 'from-emerald-600 to-emerald-900') : ''}`}
                 style={product.image ? { backgroundImage: `url(${product.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
               >
-                {/* Background Overlay */}
                 <div className={`absolute inset-0 ${product.image ? 'bg-gradient-to-t from-black/85 via-black/40 to-black/20' : 'bg-black/15 group-hover:bg-black/25'} transition-opacity duration-300`}></div>
                 
                 {/* Top Badges */}
@@ -211,7 +217,10 @@ const ProductDetails = () => {
                     {product.category === 'bamboo' && '🎋'}
                     {product.category === 'fruits' && '🍒'}
                     {product.category === 'herbs' && '🌿'}
+                    {product.category === 'seeds_gums' && '🌳'}
+                    {product.category === 'leaves_fibers' && '🍃'}
                     {product.category === 'handicrafts' && '🧺'}
+                    {product.category === 'spices' && '🌶️'}
                   </div>
                 )}
 
@@ -288,11 +297,11 @@ const ProductDetails = () => {
                   </div>
                 </div>
 
-                {/* Full-width Buy Now Button triggering Fixed Modal */}
+                {/* Prominent Buy Now Button triggering Checkout Modal */}
                 <button
                   type="button"
                   onClick={() => setIsBuyModalOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-md hover:shadow-lg text-sm cursor-pointer mt-2"
+                  className="w-full flex items-center justify-center gap-2 bg-forest-green hover:bg-forest-dark text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-md hover:shadow-lg text-sm cursor-pointer mt-2"
                 >
                   <MdShoppingCart className="h-5 w-5" />
                   <span>Buy Now (Direct Checkout)</span>
@@ -368,12 +377,10 @@ const ProductDetails = () => {
 
                       return (
                         <div key={idx} className="flex flex-col items-center flex-1 space-y-2 group relative">
-                          {/* Hover Tooltip */}
                           <span className={`text-[10px] font-black ${isTarget ? 'text-emerald-600 dark:text-emerald-400 scale-110' : 'text-stone-400 dark:text-stone-500'} group-hover:scale-110 transition-transform`}>
                             ₹{val}
                           </span>
                           
-                          {/* Column Bar */}
                           <div
                             className={`w-7 sm:w-10 rounded-t-xl transition-all duration-300 ${
                               isTarget 
@@ -383,7 +390,6 @@ const ProductDetails = () => {
                             style={{ height: `${heightPercent * 0.9}px` }}
                           ></div>
                           
-                          {/* Month Label */}
                           <span className={`text-[10px] font-bold ${isTarget ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-stone-500 dark:text-stone-400'}`}>
                             {activeAiTrend.labels[idx]}
                           </span>
@@ -471,4 +477,3 @@ const ProductDetails = () => {
 };
 
 export default ProductDetails;
-

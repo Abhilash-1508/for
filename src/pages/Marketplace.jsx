@@ -27,7 +27,6 @@ const Marketplace = () => {
       if (result.success && result.products && Array.isArray(result.products)) {
         setProducts(result.products);
       } else {
-        // Fallback to mock data when backend is offline or returns no products
         setProducts(PRODUCTS);
       }
     } catch (error) {
@@ -40,7 +39,7 @@ const Marketplace = () => {
 
   const productsArray = Array.isArray(products) ? products : [];
 
-  // Filter unique locations from products list for location dropdown
+  // Filter unique locations from products list
   const uniqueLocations = ['all', ...new Set(productsArray.filter(p => p && p.location).map(p => {
     const loc = String(p.location).trim();
     if (!loc) return 'Unknown';
@@ -84,7 +83,7 @@ const Marketplace = () => {
     if (sortOption === 'predicted-high') {
       return predB - predA;
     }
-    return 0; // Default order
+    return 0;
   });
 
   return (
@@ -103,12 +102,12 @@ const Marketplace = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-extrabold text-gray-800 font-display">{t('marketplace')}</h2>
-              <p className="text-xs text-gray-500 font-semibold mt-1">Direct community trade portal for forest products</p>
+              <p className="text-xs text-gray-500 font-semibold mt-1">Direct community trade portal for Minor Forest Produce (MFP)</p>
             </div>
             
             <button
               onClick={handleResetFilters}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-200 text-gray-600 hover:text-forest-green hover:bg-gray-50 rounded-xl text-xs font-bold transition-all self-start sm:self-auto"
+              className="flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-200 text-gray-600 hover:text-forest-green hover:bg-gray-50 rounded-xl text-xs font-bold transition-all self-start sm:self-auto cursor-pointer"
             >
               <MdRefresh className="h-4 w-4" />
               <span>Reset Filters</span>
@@ -176,7 +175,7 @@ const Marketplace = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+                    className={`px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
                       selectedCategory === category.id
                         ? 'bg-forest-green text-white shadow-sm'
                         : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'
@@ -209,7 +208,7 @@ const Marketplace = () => {
               <p className="text-xs text-gray-400 max-w-xs mx-auto leading-relaxed">{t('noProducts')}</p>
               <button
                 onClick={handleResetFilters}
-                className="mt-2 bg-emerald-50 text-forest-green hover:bg-forest-green hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-emerald-100/50"
+                className="mt-2 bg-emerald-50 text-forest-green hover:bg-forest-green hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-emerald-100/50 cursor-pointer"
               >
                 Clear Filters
               </button>

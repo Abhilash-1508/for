@@ -29,7 +29,7 @@ const Footer = () => {
           {/* Quick Contacts */}
           <div>
             <h3 className="text-white font-semibold text-sm tracking-wider uppercase mb-4 font-display">
-              {t('contactTitle')}
+              {t('quickContacts')}
             </h3>
             <ul className="space-y-3 text-sm text-emerald-300">
               <li className="flex items-center gap-2">
@@ -41,7 +41,7 @@ const Footer = () => {
                 <span>support@forestconnect.gov.in</span>
               </li>
               <li className="text-xs text-emerald-400 mt-2">
-                * Available 24/7 in English & Telugu
+                * Available 24/7 in English, Hindi & Telugu
               </li>
             </ul>
           </div>
@@ -49,7 +49,7 @@ const Footer = () => {
           {/* Socials & Welfare Links */}
           <div>
             <h3 className="text-white font-semibold text-sm tracking-wider uppercase mb-4 font-display">
-              Tribal Welfare
+              {t('tribalWelfare')}
             </h3>
             <div className="flex space-x-4 mb-4">
               <a href="#" className="p-2 bg-emerald-900/60 hover:bg-emerald-900 text-emerald-300 hover:text-white rounded-lg transition-colors" aria-label="Facebook">
@@ -70,11 +70,11 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 border-t border-emerald-900 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-emerald-400">
-          <p>© {new Date().getFullYear()} ForestConnect AI. All Rights Reserved.</p>
+          <p>© {new Date().getFullYear()} ForestConnect AI. {t('rightsReserved')}</p>
           <div className="flex gap-4 mt-2 sm:mt-0">
-            <a href="#" className="hover:underline">Privacy Policy</a>
-            <a href="#" className="hover:underline">Terms of Service</a>
-            <a href="#" className="hover:underline">GCC Scheme Guidelines</a>
+            <a href="#" className="hover:underline">{t('privacyPolicy')}</a>
+            <a href="#" className="hover:underline">{t('termsOfService')}</a>
+            <a href="#" className="hover:underline">{t('gccGuidelines')}</a>
           </div>
         </div>
       </div>
