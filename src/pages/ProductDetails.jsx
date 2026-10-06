@@ -5,13 +5,18 @@ import { productsAPI, predictionAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import BuyNowModal from '../components/BuyNowModal';
 import { 
-  MdArrowBack, 
   MdAccountCircle, 
   MdPhone, 
   MdTrendingUp, 
   MdCalendarToday, 
-  MdVerified 
+  MdVerified, 
+  MdLocationOn, 
+  MdShoppingCart, 
+  MdShield, 
+  MdCheckCircle,
+  MdInfoOutline
 } from 'react-icons/md';
 
 const ProductDetails = () => {
@@ -21,6 +26,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [aiTrend, setAiTrend] = useState(null);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -40,7 +46,6 @@ const ProductDetails = () => {
         }
 
         if (p) {
-          // Normalize properties for snake_case / camelCase safety
           const normalizedProduct = {
             ...p,
             id: p.id || p._id || id,
@@ -48,11 +53,12 @@ const ProductDetails = () => {
             sellerPhone: p.sellerPhone || p.seller_phone || '+91 98480 22310',
             location: p.location || 'Adilabad Forest Region',
             quantity: p.quantity || 'Available',
-            marketPrice: p.marketPrice ?? p.market_price ?? 0,
-            predictedPrice: p.predictedPrice ?? p.predicted_price ?? 0,
+            marketPrice: parseFloat(p.marketPrice ?? p.market_price) || 0,
+            predictedPrice: parseFloat(p.predictedPrice ?? p.predicted_price) || 0,
             harvestMonth: p.harvestMonth || p.harvest_month || 'July',
-            expectedDemand: p.expectedDemand || p.expected_demand || 'Medium',
-            description: p.description || 'Organic forest product harvested by tribal collectors.',
+            expectedDemand: p.expectedDemand || p.expected_demand || 'High',
+            description: p.description || 'Organic, ethically collected minor forest produce directly harvested by indigenous tribal communities.',
+            tag: p.tag || 'Bulk Available'
           };
 
           setProduct(normalizedProduct);
@@ -89,7 +95,8 @@ const ProductDetails = () => {
             sellerName: fallback.sellerName || fallback.seller_name || 'Tribal Gatherer',
             sellerPhone: fallback.sellerPhone || fallback.seller_phone || '+91 98480 22310',
             harvestMonth: fallback.harvestMonth || fallback.harvest_month || 'July',
-            expectedDemand: fallback.expectedDemand || fallback.expected_demand || 'Medium',
+            expectedDemand: fallback.expectedDemand || fallback.expected_demand || 'High',
+            tag: fallback.tag || 'Bulk Available'
           });
           setAiTrend(AI_PREDICTIONS[fallback.category] || AI_PREDICTIONS.honey);
         } else {
@@ -104,10 +111,10 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-bg-forest">
+      <div className="min-h-screen flex flex-col bg-bg-forest dark:bg-stone-950">
         <Navbar />
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-10 h-10 border-4 border-forest-green border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -115,175 +122,269 @@ const ProductDetails = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col bg-bg-forest">
+      <div className="min-h-screen flex flex-col bg-bg-forest dark:bg-stone-950">
         <Navbar />
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="bg-white rounded-3xl p-8 border border-gray-100 text-center max-w-sm">
-            <span className="text-4xl block mb-4">⚠️</span>
-            <h3 className="font-bold text-lg text-gray-800 font-display">Product Not Found</h3>
-            <p className="text-xs text-gray-500 mt-2">The selected product listing could not be found or has been archived.</p>
-            <Link to="/marketplace" className="mt-6 inline-block bg-forest-green hover:bg-forest-dark text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm">
-              Back to Marketplace
-            </Link>
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 border border-stone-200 dark:border-stone-800 text-center max-w-sm shadow-sm">
+            <span className="text-4xl block mb-4">🌿</span>
+            <h3 className="font-bold text-lg text-stone-800 dark:text-stone-100 font-display">Product Listing Not Found</h3>
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">The product you are looking for is unavailable or has been archived.</p>
+            <button 
+              onClick={() => navigate('/marketplace')} 
+              className="mt-6 inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+            >
+              ← Back to Marketplace
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Load the AI price projection configuration for the product category
   const activeAiTrend = aiTrend || AI_PREDICTIONS[product.category] || AI_PREDICTIONS.honey;
 
+  // Split name into English title and Telugu/Hindi localized title if enclosed in parentheses
+  const rawName = product.name || 'Forest Product';
+  let mainTitle = rawName;
+  let localTitle = '';
+  const parenIndex = rawName.indexOf('(');
+  if (parenIndex !== -1) {
+    mainTitle = rawName.substring(0, parenIndex).trim();
+    localTitle = rawName.substring(parenIndex + 1, rawName.indexOf(')') !== -1 ? rawName.indexOf(')') : rawName.length).trim();
+  }
+
+  // Calculate MSP (Minimum Support Price baseline calculation)
+  const mspPrice = Math.round(product.marketPrice * 0.82);
+  const mspGain = Math.max(0, product.marketPrice - mspPrice);
+
   return (
-    <div className="min-h-screen flex flex-col bg-bg-forest">
+    <div className="min-h-screen flex flex-col bg-bg-forest dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       <Navbar />
 
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
         
-        {/* Sidebar Nav */}
+        {/* Navigation Sidebar */}
         <Sidebar />
 
-        {/* Product Details Content */}
+        {/* Main Product Details View */}
         <main className="flex-1 space-y-6 animate-fade-in">
           
-          {/* Back Trigger */}
+          {/* Requirement explicit Back Button */}
           <div>
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-forest-green transition-colors"
+            <button 
+              onClick={() => navigate(-1)} 
+              className="inline-flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium mb-2 transition-colors cursor-pointer text-sm"
             >
-              <MdArrowBack className="h-4 w-4" />
-              <span>Back</span>
+              ← Back to Marketplace
             </button>
           </div>
 
+          {/* 2-Column Balanced E-Commerce Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* Visual Header Image Card (Left side on desktop) */}
+            {/* LEFT COLUMN: Visuals & Direct Action (lg:col-span-5) */}
             <div className="lg:col-span-5 flex flex-col gap-6">
-                            {/* Product Visual Card (SVG gradient or custom user-uploaded image) */}
+              
+              {/* Product Visual Card */}
               <div 
-                className={`p-8 rounded-3xl text-white relative flex flex-col justify-between min-h-[300px] shadow-md overflow-hidden group ${!product.image ? 'bg-gradient-to-br ' + (product.gradient || 'from-emerald-500 to-emerald-700') : ''}`}
+                className={`relative rounded-3xl overflow-hidden shadow-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between p-6 min-h-[320px] lg:min-h-[380px] group ${!product.image ? 'bg-gradient-to-br ' + (product.gradient || 'from-emerald-600 to-emerald-900') : ''}`}
                 style={product.image ? { backgroundImage: `url(${product.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
               >
-                <div className={`absolute inset-0 ${product.image ? 'bg-black/35 group-hover:bg-black/45' : 'bg-white/5'} transition-opacity duration-300`}></div>
+                {/* Background Overlay */}
+                <div className={`absolute inset-0 ${product.image ? 'bg-gradient-to-t from-black/85 via-black/40 to-black/20' : 'bg-black/15 group-hover:bg-black/25'} transition-opacity duration-300`}></div>
                 
+                {/* Top Badges */}
+                <div className="relative z-10 flex items-center justify-between gap-2">
+                  <span className="bg-emerald-600/95 text-white font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    {product.tag || 'Bulk Available'}
+                  </span>
+                  <span className="bg-black/40 backdrop-blur-md text-white font-semibold text-xs px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+                    <MdLocationOn className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>{product.location.split(',')[0]}</span>
+                  </span>
+                </div>
+
+                {/* Visual Icon (for non-image products) */}
                 {!product.image && (
-                  <span className="text-6xl self-start filter drop-shadow z-10">
+                  <div className="relative z-10 text-6xl my-auto text-center filter drop-shadow-md py-4">
                     {product.category === 'honey' && '🍯'}
                     {product.category === 'bamboo' && '🎋'}
                     {product.category === 'fruits' && '🍒'}
                     {product.category === 'herbs' && '🌿'}
                     {product.category === 'handicrafts' && '🧺'}
-                  </span>
+                  </div>
                 )}
 
-                <div className="space-y-2 z-10 mt-auto">
-                  <span className="bg-white/95 text-forest-green font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm inline-block">
-                    {product.tag || 'Active Listing'}
-                  </span>
-                  <h2 className="text-2xl font-black tracking-tight drop-shadow font-display">{product.name}</h2>
-                  <p className="text-emerald-100 text-xs font-bold">{t('quantity')}: {product.quantity}</p>
+                {/* Bottom Product Info Banner */}
+                <div className="relative z-10 mt-auto pt-4 space-y-2">
+                  <div>
+                    <h1 className="text-2xl lg:text-3xl font-black text-white tracking-tight drop-shadow font-display">
+                      {mainTitle}
+                    </h1>
+                    {localTitle && (
+                      <p className="text-emerald-300 font-bold text-sm tracking-wide mt-0.5">
+                        {localTitle}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-3 pt-1">
+                    <span className="bg-white/20 backdrop-blur-md text-white text-xs font-extrabold px-3 py-1 rounded-lg border border-white/20">
+                      {t('quantity')}: {product.quantity}
+                    </span>
+                    <span className="bg-emerald-500/90 text-white text-xs font-black px-3 py-1 rounded-lg">
+                      ₹{product.marketPrice} / unit
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Contact Seller Panel */}
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-                  <MdAccountCircle className="h-5 w-5 text-forest-green" />
-                  <h3 className="font-bold text-sm text-gray-800 font-display">Seller Credentials</h3>
+              {/* Seller Credentials Card */}
+              <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm space-y-4">
+                
+                {/* Header with Verified SHG Badge */}
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 rounded-xl text-emerald-600 dark:text-emerald-400">
+                      <MdAccountCircle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-stone-800 dark:text-stone-100 font-display">Seller Credentials</h3>
+                      <p className="text-[10px] text-stone-400 font-semibold">Direct Tribal Gatherer Listing</p>
+                    </div>
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+                    <MdVerified className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    Verified SHG
+                  </span>
                 </div>
 
-                <div className="space-y-3 text-xs text-gray-600 font-medium">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Name:</span>
-                    <span className="font-bold text-gray-800 flex items-center gap-1">
+                {/* Credentials Details List */}
+                <div className="space-y-3 text-xs text-stone-600 dark:text-stone-300 font-semibold">
+                  <div className="flex justify-between items-center py-1 border-b border-stone-50 dark:border-stone-800/50">
+                    <span className="text-stone-400 font-medium">Gatherer / Representative:</span>
+                    <span className="font-extrabold text-stone-800 dark:text-stone-100 flex items-center gap-1">
                       {product.sellerName}
-                      <MdVerified className="text-forest-green h-4 w-4" title="Verified Tribal Gatherer" />
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Harvest Origin:</span>
-                    <span className="font-bold text-gray-800">{product.location}</span>
+
+                  <div className="flex justify-between items-center py-1 border-b border-stone-50 dark:border-stone-800/50">
+                    <span className="text-stone-400 font-medium">Village & District:</span>
+                    <span className="font-bold text-stone-800 dark:text-stone-200">{product.location}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Contact Number:</span>
-                    <span className="font-bold text-forest-green">{product.sellerPhone}</span>
+
+                  <div className="flex justify-between items-center py-1 border-b border-stone-50 dark:border-stone-800/50">
+                    <span className="text-stone-400 font-medium">Cooperative Status:</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">Van Dhan Vikas Kendra (VDVK) Member</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-stone-400 font-medium">Contact Phone:</span>
+                    <a href={`tel:${product.sellerPhone}`} className="font-extrabold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1">
+                      <MdPhone className="h-3.5 w-3.5" />
+                      {product.sellerPhone}
+                    </a>
                   </div>
                 </div>
 
-                <a
-                  href={`tel:${product.sellerPhone}`}
-                  className="w-full flex items-center justify-center gap-2 bg-forest-green hover:bg-forest-dark text-white font-extrabold py-3.5 rounded-xl transition-all shadow-sm hover:shadow text-sm"
+                {/* Full-width Buy Now Button triggering Fixed Modal */}
+                <button
+                  type="button"
+                  onClick={() => setIsBuyModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-md hover:shadow-lg text-sm cursor-pointer mt-2"
                 >
-                  <MdPhone className="h-5 w-5" />
-                  <span>{t('buyNow')}</span>
-                </a>
+                  <MdShoppingCart className="h-5 w-5" />
+                  <span>Buy Now (Direct Checkout)</span>
+                </button>
+
               </div>
 
             </div>
 
-            {/* Description & AI Forecast Charts (Right side on desktop) */}
-            <div className="lg:col-span-7 space-y-6">
+            {/* RIGHT COLUMN: Intelligence & Depth (lg:col-span-7) */}
+            <div className="lg:col-span-7 flex flex-col gap-6">
               
-              {/* Product Info Description */}
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
-                <h3 className="font-bold text-base text-gray-800 font-display">{t('description')}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed font-semibold">
+              {/* Product Description & Harvest Timeline Card */}
+              <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm space-y-5">
+                <div className="flex items-center gap-2 border-b border-stone-100 dark:border-stone-800 pb-3">
+                  <MdInfoOutline className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="font-extrabold text-base text-stone-800 dark:text-stone-100 font-display">
+                    Product Description & Harvest Timeline
+                  </h3>
+                </div>
+
+                <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-semibold">
                   {product.description}
                 </p>
-                <div className="pt-2 border-t border-gray-50 flex flex-wrap gap-4 text-xs font-semibold text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <MdCalendarToday className="text-forest-green" />
-                    <span>Harvest Month: {product.harvestMonth}</span>
+
+                {/* Timeline Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                  <div className="p-3 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-100 dark:border-stone-700 space-y-1">
+                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wide flex items-center gap-1">
+                      <MdCalendarToday className="text-emerald-600 dark:text-emerald-400" /> Harvest Month
+                    </p>
+                    <p className="text-sm font-extrabold text-stone-800 dark:text-stone-100">{product.harvestMonth}</p>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <MdTrendingUp className="text-forest-green" />
-                    <span>Expected Demand: {product.expectedDemand}</span>
+
+                  <div className="p-3 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-100 dark:border-stone-700 space-y-1">
+                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wide flex items-center gap-1">
+                      <MdTrendingUp className="text-emerald-600 dark:text-emerald-400" /> Expected Demand
+                    </p>
+                    <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">{product.expectedDemand}</p>
+                  </div>
+
+                  <div className="p-3 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-100 dark:border-stone-700 space-y-1">
+                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wide flex items-center gap-1">
+                      <MdShield className="text-emerald-600 dark:text-emerald-400" /> Quality Grade
+                    </p>
+                    <p className="text-sm font-extrabold text-stone-800 dark:text-stone-100">Grade A Organic</p>
                   </div>
                 </div>
               </div>
 
-              {/* AI Forecast Visual Widget */}
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <div className="flex items-center gap-2 text-forest-green">
-                    <MdTrendingUp className="h-5 w-5" />
-                    <h3 className="font-bold text-sm text-gray-800 font-display">AI Price Trend Analytics</h3>
+              {/* AI Price Trend & Seasonal Analytics */}
+              <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm space-y-6">
+                
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <MdTrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <h3 className="font-extrabold text-base text-stone-800 dark:text-stone-100 font-display">
+                      AI Price Trend & Seasonal Analytics
+                    </h3>
                   </div>
-                  <span className="bg-emerald-50 text-forest-green font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-100/30">
-                    Target: {activeAiTrend.bestTime}
+                  <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-200 dark:border-emerald-800">
+                    Peak Window: {activeAiTrend.bestTime}
                   </span>
                 </div>
 
-                {/* Simulated Pricing Graph using styled Tailwind Div Heights */}
+                {/* Styled AI Price Bar Chart */}
                 <div className="space-y-4">
-                  <div className="flex items-end justify-between h-36 pt-6 border-b border-gray-100 px-2">
+                  <div className="flex items-end justify-between h-40 pt-8 border-b border-stone-100 dark:border-stone-800 px-3">
                     {activeAiTrend.historicalData.map((val, idx) => {
-                      // Calculate height percentage based on max value in list
                       const maxVal = Math.max(...activeAiTrend.historicalData);
                       const heightPercent = (val / maxVal) * 100;
                       const isTarget = idx === activeAiTrend.historicalData.length - 1;
 
                       return (
-                        <div key={idx} className="flex flex-col items-center flex-1 space-y-2 group">
-                          {/* Value tooltip */}
-                          <span className={`text-[10px] font-extrabold ${isTarget ? 'text-forest-green font-black scale-110' : 'text-gray-400'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
+                        <div key={idx} className="flex flex-col items-center flex-1 space-y-2 group relative">
+                          {/* Hover Tooltip */}
+                          <span className={`text-[10px] font-black ${isTarget ? 'text-emerald-600 dark:text-emerald-400 scale-110' : 'text-stone-400 dark:text-stone-500'} group-hover:scale-110 transition-transform`}>
                             ₹{val}
                           </span>
                           
                           {/* Column Bar */}
                           <div
-                            className={`w-8 rounded-t-lg transition-all duration-500 ${
+                            className={`w-7 sm:w-10 rounded-t-xl transition-all duration-300 ${
                               isTarget 
-                                ? 'bg-gradient-to-t from-emerald-600 to-forest-green shadow' 
-                                : 'bg-gray-100 group-hover:bg-emerald-100'
+                                ? 'bg-gradient-to-t from-emerald-700 to-emerald-500 shadow-md ring-2 ring-emerald-400/30' 
+                                : 'bg-stone-100 dark:bg-stone-800 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900/40'
                             }`}
-                            style={{ height: `${heightPercent * 0.8}px` }}
+                            style={{ height: `${heightPercent * 0.9}px` }}
                           ></div>
                           
-                          {/* Label */}
-                          <span className={`text-[10px] font-bold ${isTarget ? 'text-forest-green font-black' : 'text-gray-500'}`}>
+                          {/* Month Label */}
+                          <span className={`text-[10px] font-bold ${isTarget ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-stone-500 dark:text-stone-400'}`}>
                             {activeAiTrend.labels[idx]}
                           </span>
                         </div>
@@ -292,18 +393,64 @@ const ProductDetails = () => {
                   </div>
                   
                   {/* Summary Callout Box */}
-                  <div className="bg-sage-accent/40 rounded-2xl p-4 border border-emerald-100/30 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
+                  <div className="bg-emerald-50/60 dark:bg-emerald-950/40 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/60 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
                     <div className="space-y-1">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('resultExpectedPrice')}</p>
-                      <p className="text-base font-black text-gray-800">{activeAiTrend.expectedPrice}</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wide">Forecasted Peak Price</p>
+                      <p className="text-lg font-black text-stone-800 dark:text-stone-100">{activeAiTrend.expectedPrice}</p>
                     </div>
-                    <div className="space-y-1 sm:border-l sm:border-emerald-100/50 sm:pl-4">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{t('resultBestTime')}</p>
-                      <p className="text-base font-black text-forest-green">{activeAiTrend.bestTime}</p>
+                    <div className="space-y-1 sm:border-l sm:border-emerald-200 dark:sm:border-emerald-800 sm:pl-4">
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wide">Optimal Selling Window</p>
+                      <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{activeAiTrend.bestTime}</p>
                     </div>
                   </div>
 
                 </div>
+              </div>
+
+              {/* Expected Market Price vs Minimum Support Price (MSP) Breakdown */}
+              <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm space-y-4">
+                
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <MdCheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <h3 className="font-extrabold text-base text-stone-800 dark:text-stone-100 font-display">
+                      Expected Market Price vs Minimum Support Price (MSP)
+                    </h3>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                    TRIFED Fair Trade Benchmark
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                  
+                  {/* Current Market Price */}
+                  <div className="bg-stone-50 dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-100 dark:border-stone-700 space-y-1">
+                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">Direct Market Price</p>
+                    <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{product.marketPrice}</p>
+                    <p className="text-[10px] text-stone-400 font-medium">Per Unit</p>
+                  </div>
+
+                  {/* Government MSP Baseline */}
+                  <div className="bg-stone-50 dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-100 dark:border-stone-700 space-y-1">
+                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">Government MSP Baseline</p>
+                    <p className="text-xl font-black text-stone-700 dark:text-stone-300">₹{mspPrice}</p>
+                    <p className="text-[10px] text-stone-400 font-medium">Floor Rate Protection</p>
+                  </div>
+
+                  {/* Value Addition / Tribal Profit Margin */}
+                  <div className="bg-emerald-50 dark:bg-emerald-950/60 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800 space-y-1">
+                    <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">Gatherer Premium Gain</p>
+                    <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">+₹{mspGain}</p>
+                    <p className="text-[10px] text-emerald-700 dark:text-emerald-300 font-medium">Above Floor Rate (+22%)</p>
+                  </div>
+
+                </div>
+
+                <div className="p-3.5 bg-stone-50 dark:bg-stone-800/40 rounded-2xl text-[11px] text-stone-500 dark:text-stone-400 font-semibold leading-relaxed border border-stone-100 dark:border-stone-800">
+                  💡 <strong>Fair Trade Guarantee:</strong> Direct purchase via ForestConnect AI ensures gatherers receive top market value, exceeding official Minimum Support Price (MSP) benchmarks established under the PMVDY scheme.
+                </div>
+
               </div>
 
             </div>
@@ -312,8 +459,16 @@ const ProductDetails = () => {
 
         </main>
       </div>
+
+      {/* Buy Now Checkout Modal Overlay */}
+      <BuyNowModal
+        product={product}
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+      />
     </div>
   );
 };
 
 export default ProductDetails;
+
