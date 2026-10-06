@@ -94,7 +94,7 @@ const ProductCard = ({ product }) => {
         {/* Action Buttons */}
         <div className="grid grid-cols-5 gap-2 pt-1">
           <Link
-            to={`/product/${product.id}`}
+            to={`/product/${product.id || product._id || product.productId}`}
             className="col-span-3 bg-forest-green hover:bg-forest-dark text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
           >
             {t('viewDetails')}

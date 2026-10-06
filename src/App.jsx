@@ -33,24 +33,24 @@ function App() {
           <Router>
             <OfflineBanner />
             <Routes>
-              {/* Public Routes — Browsing Features (Amazon/Flipkart Style) */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              {/* Public Routes — Browsing Features */}
+              <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+              <Route path="/login" element={<ErrorBoundary><Login /></ErrorBoundary>} />
+              <Route path="/register" element={<ErrorBoundary><Register /></ErrorBoundary>} />
               <Route path="/marketplace" element={<ErrorBoundary><Marketplace /></ErrorBoundary>} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/schemes" element={<Schemes />} />
-              <Route path="/prediction" element={<Prediction />} />
-              <Route path="/weather" element={<Weather />} />
-              <Route path="/healthcare" element={<Healthcare />} />
-              <Route path="/education" element={<Education />} />
+              <Route path="/product/:id" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
+              <Route path="/schemes" element={<ErrorBoundary><Schemes /></ErrorBoundary>} />
+              <Route path="/prediction" element={<ErrorBoundary><Prediction /></ErrorBoundary>} />
+              <Route path="/weather" element={<ErrorBoundary><Weather /></ErrorBoundary>} />
+              <Route path="/healthcare" element={<ErrorBoundary><Healthcare /></ErrorBoundary>} />
+              <Route path="/education" element={<ErrorBoundary><Education /></ErrorBoundary>} />
               
               {/* Protected Routes — Account & Management Actions */}
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/add-product" element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
-              <Route path="/edit-product/:id" element={<ProtectedRoute><EditProduct /></ProtectedRoute>} />
-              <Route path="/my-products" element={<ProtectedRoute><MyProducts /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><ErrorBoundary><Dashboard /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/add-product" element={<ProtectedRoute><ErrorBoundary><AddProduct /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/edit-product/:id" element={<ProtectedRoute><ErrorBoundary><EditProduct /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/my-products" element={<ProtectedRoute><ErrorBoundary><MyProducts /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><ErrorBoundary><Profile /></ErrorBoundary></ProtectedRoute>} />
             </Routes>
             <VoiceAssistantWidget />
           </Router>

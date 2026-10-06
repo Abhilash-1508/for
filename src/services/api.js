@@ -5,6 +5,7 @@
  */
 
 import axios from 'axios';
+import { PRODUCTS } from '../data/mockData';
 
 const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE) 
   ? import.meta.env.VITE_API_BASE 
@@ -152,7 +153,30 @@ export const productsAPI = {
   },
 
   getById: async (productId) => {
-    return await apiCall('get', `/products/${productId}`, null, `product_${productId}`);
+    try {
+      const res = await apiCall('get', `/products/${productId}`, null, `product_${productId}`);
+      if (res && res.success && res.product) return res;
+    } catch (e) {
+      console.warn(`Failed to fetch product ${productId} from backend, attempting offline fallback:`, e);
+    }
+
+    // Fallback: search cached products in localStorage or static mock data
+    const cleanId = String(productId);
+    const cached = getCachedResponse('products');
+    const cachedList = (cached && Array.isArray(cached.products)) ? cached.products : [];
+    
+    const allProducts = [...cachedList, ...PRODUCTS];
+    const found = allProducts.find(p => {
+      if (!p) return false;
+      const pid = String(p.id || p._id || '');
+      return pid === cleanId || pid.replace('p', '') === cleanId.replace('p', '');
+    });
+
+    if (found) {
+      return { success: true, product: found, _fromFallback: true };
+    }
+
+    return { success: false, message: 'Product not found' };
   },
 
   add: async (productData) => {

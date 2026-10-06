@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { AI_PREDICTIONS } from '../data/mockData';
+import { AI_PREDICTIONS, PRODUCTS } from '../data/mockData';
 import { productsAPI, predictionAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
@@ -26,12 +26,38 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
+        let p = null;
         const result = await productsAPI.getById(id);
-        if (result.success && result.product) {
-          const p = result.product;
-          setProduct(p);
+        if (result && result.success && result.product) {
+          p = result.product;
+        } else {
+          // Fallback to searching mock PRODUCTS array
+          const cleanId = String(id);
+          p = PRODUCTS.find(item => {
+            const itemId = String(item.id || item._id || '');
+            return itemId === cleanId || itemId.replace('p', '') === cleanId.replace('p', '');
+          });
+        }
+
+        if (p) {
+          // Normalize properties for snake_case / camelCase safety
+          const normalizedProduct = {
+            ...p,
+            id: p.id || p._id || id,
+            sellerName: p.sellerName || p.seller_name || 'Tribal Gatherer',
+            sellerPhone: p.sellerPhone || p.seller_phone || '+91 98480 22310',
+            location: p.location || 'Adilabad Forest Region',
+            quantity: p.quantity || 'Available',
+            marketPrice: p.marketPrice ?? p.market_price ?? 0,
+            predictedPrice: p.predictedPrice ?? p.predicted_price ?? 0,
+            harvestMonth: p.harvestMonth || p.harvest_month || 'July',
+            expectedDemand: p.expectedDemand || p.expected_demand || 'Medium',
+            description: p.description || 'Organic forest product harvested by tribal collectors.',
+          };
+
+          setProduct(normalizedProduct);
           try {
-            const predRes = await predictionAPI.predict(p.category || 'honey', 1, p.harvestMonth || 'July');
+            const predRes = await predictionAPI.predict(normalizedProduct.category || 'honey', 1, normalizedProduct.harvestMonth || 'July');
             if (predRes && predRes.success && predRes.prediction) {
               const pred = predRes.prediction;
               setAiTrend({
@@ -42,14 +68,33 @@ const ProductDetails = () => {
                 labels: pred.historical_labels
               });
             } else {
-              setAiTrend(AI_PREDICTIONS[p.category] || AI_PREDICTIONS.honey);
+              setAiTrend(AI_PREDICTIONS[normalizedProduct.category] || AI_PREDICTIONS.honey);
             }
           } catch {
-            setAiTrend(AI_PREDICTIONS[p.category] || AI_PREDICTIONS.honey);
+            setAiTrend(AI_PREDICTIONS[normalizedProduct.category] || AI_PREDICTIONS.honey);
           }
+        } else {
+          setProduct(null);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Error in fetchProduct:', err);
+        const cleanId = String(id);
+        const fallback = PRODUCTS.find(item => {
+          const itemId = String(item.id || item._id || '');
+          return itemId === cleanId || itemId.replace('p', '') === cleanId.replace('p', '');
+        });
+        if (fallback) {
+          setProduct({
+            ...fallback,
+            sellerName: fallback.sellerName || fallback.seller_name || 'Tribal Gatherer',
+            sellerPhone: fallback.sellerPhone || fallback.seller_phone || '+91 98480 22310',
+            harvestMonth: fallback.harvestMonth || fallback.harvest_month || 'July',
+            expectedDemand: fallback.expectedDemand || fallback.expected_demand || 'Medium',
+          });
+          setAiTrend(AI_PREDICTIONS[fallback.category] || AI_PREDICTIONS.honey);
+        } else {
+          setProduct(null);
+        }
       } finally {
         setLoading(false);
       }

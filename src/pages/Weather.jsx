@@ -29,6 +29,7 @@ const Weather = () => {
   const { language } = useLanguage();
   const [weatherData, setWeatherData] = useState(WEATHER_ADVISORY);
   const [locationName, setLocationName] = useState('Detecting current location...');
+  const [locationStatus, setLocationStatus] = useState('idle');
   const [coords, setCoords] = useState({ lat: 19.08, lon: 78.27 });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
