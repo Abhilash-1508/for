@@ -117,6 +117,7 @@ export const SCHEMES = [
     eligibility: "Tribal gatherers, members of Van Dhan Self-Help Groups (SHGs).",
     benefits: "Funding of ₹15 Lakhs per Van Dhan Vikas Kendra (300 members) for value addition infrastructure, tools, packaging machinery, and skill development training.",
     applyProcedure: "Form a Self-Help Group of 15-20 gatherers and register via District Nodal Officer or Tribal Development Department portal.",
+    url: "https://pmvdky.trifed.gov.in",
     tag: "Recommended"
   },
   {
@@ -127,6 +128,7 @@ export const SCHEMES = [
     eligibility: "All registered tribal forest gatherers selling declared Minor Forest Produce.",
     benefits: "Ensures floor prices for 73+ minor forest products (including Honey, Amla, Mahua, Tamarind). Direct bank transfer (DBT) to prevent exploitation by middlemen.",
     applyProcedure: "Register with the local Primary Procurement Center run by GCC (Girijan Co-operative Corporation) or forest department.",
+    url: "https://trifed.tribal.gov.in/msp-for-mfp",
     tag: "Financial Support"
   },
   {
@@ -137,6 +139,7 @@ export const SCHEMES = [
     eligibility: "Farmers, artisans, and cooperatives owning suitable land for bamboo plantation.",
     benefits: "Up to 50% subsidy (₹50,000 per hectare) for raising bamboo nurseries and plantations, along with technical support and marketing assistance.",
     applyProcedure: "Submit application with land records and layout plan to state horticulture/forest nodal officers.",
+    url: "https://nbm.nic.in",
     tag: "Subsidy"
   },
   {
@@ -147,12 +150,14 @@ export const SCHEMES = [
     eligibility: "Traditional forest dwellers and Scheduled Tribes residing in forest lands prior to Dec 2005.",
     benefits: "Legal recognition of rights to use, manage, and sell minor forest produce, construct minor check dams, and access community forest resources.",
     applyProcedure: "Submit claim form through local Gram Sabha (Village Committee) to Sub-Divisional Committee.",
+    url: "https://tribal.nic.in/FRA.aspx",
     tag: "Legal Title"
   }
 ];
 
 export const WEATHER_ADVISORY = {
   temp: "29°C",
+  feelsLike: "31°C",
   condition: "Scattered Showers (జల్లులు కురిసే అవకాశం)",
   humidity: "82%",
   wind: "14 km/h",
@@ -173,29 +178,41 @@ export const AI_PREDICTIONS = {
   honey: {
     expectedPrice: "₹380 / kg",
     demandLevel: "High (ఎక్కువ)",
-    bestTime: "Late July (జూలై చివర)",
-    historicalData: [310, 320, 315, 330, 320, 380], // Last 6 months
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    bestTime: "May to July (Peak Wild Honey Bloom)",
+    historicalData: [310, 325, 340, 355, 370, 380],
+    labels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"],
+    chartLabels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"]
   },
   bamboo: {
     expectedPrice: "₹135 / piece",
     demandLevel: "Medium (మధ్యస్థం)",
-    bestTime: "September (సెప్టెంబర్)",
-    historicalData: [110, 112, 115, 110, 110, 135],
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    bestTime: "October to December (Post-Monsoon Harvest)",
+    historicalData: [110, 115, 118, 122, 128, 135],
+    labels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"],
+    chartLabels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"]
   },
   fruits: {
     expectedPrice: "₹105 / kg (Amla)",
     demandLevel: "High (ఎక్కువ)",
-    bestTime: "Mid August (ఆగస్టు మధ్య)",
-    historicalData: [85, 90, 88, 92, 90, 105],
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    bestTime: "December to February (Winter Harvest)",
+    historicalData: [85, 88, 92, 95, 98, 105],
+    labels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"],
+    chartLabels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"]
   },
   herbs: {
     expectedPrice: "₹160 / kg (Haritaki)",
     demandLevel: "High (ఎక్కువ)",
-    bestTime: "Late October (అక్టోబర్ చివర)",
-    historicalData: [135, 140, 142, 139, 140, 160],
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    bestTime: "October to November (Herb Processing Peak)",
+    historicalData: [135, 140, 145, 150, 155, 160],
+    labels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"],
+    chartLabels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"]
+  },
+  handicrafts: {
+    expectedPrice: "₹450 / item",
+    demandLevel: "High (ఎక్కువ)",
+    bestTime: "October to December (Festival Artisanal Demand)",
+    historicalData: [380, 395, 410, 425, 440, 450],
+    labels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"],
+    chartLabels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"]
   }
 };

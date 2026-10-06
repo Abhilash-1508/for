@@ -58,13 +58,14 @@ const Weather = () => {
     try {
       // 1. Fetch live weather from Open-Meteo (Free, Global, No API Key needed)
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
       );
       
       if (!res.ok) throw new Error('Open-Meteo request failed');
       const data = await res.json();
 
-      const currentTemp = `${Math.round(data.current.temperature_2m)}°C`;
+      const tempVal = Math.round(data.current.temperature_2m);
+      const feelsLikeVal = Math.round(data.current.apparent_temperature);
       const currentHumidity = `${data.current.relative_humidity_2m}%`;
       const currentWind = `${Math.round(data.current.wind_speed_10m)} km/h`;
       const conditionInfo = getWeatherCondition(data.current.weather_code);
@@ -95,7 +96,7 @@ const Weather = () => {
           );
           if (geoRes.ok) {
             const geoData = await geoRes.json();
-            const locality = geoData.locality || geoData.city || geoData.principalSubdivision || 'Your Location';
+            const locality = geoData.locality || geoData.city || geoData.principalSubdivision || 'Secunderabad';
             const country = geoData.countryName || 'India';
             nameToSet = `${locality}, ${geoData.principalSubdivision || country}`;
           }
@@ -104,10 +105,11 @@ const Weather = () => {
         }
       }
 
-      setLocationName(nameToSet || 'Your Current Location');
+      setLocationName(nameToSet || 'Secunderabad, Telangana');
       setCoords({ lat: latitude, lon: longitude });
       setWeatherData({
-        temp: currentTemp,
+        temp: `${tempVal}°C`,
+        feelsLike: `${feelsLikeVal}°C`,
         condition: `${conditionInfo.icon} ${conditionInfo.text}`,
         humidity: currentHumidity,
         wind: currentWind,
@@ -119,12 +121,15 @@ const Weather = () => {
       });
       setSource('live');
     } catch (err) {
-      console.warn('Live Open-Meteo fetch failed, using backend/fallback API:', err);
+      console.warn('Live Open-Meteo fetch failed, using fallback:', err);
       try {
         const result = await weatherAPI.get(latitude, longitude);
-        if (result.success) {
+        if (result && result.success && result.weather) {
           setWeatherData(result.weather);
-          setSource(result.source || 'live');
+          setSource('live');
+        } else {
+          setWeatherData(WEATHER_ADVISORY);
+          setSource('offline');
         }
       } catch {
         setWeatherData(WEATHER_ADVISORY);
@@ -141,9 +146,8 @@ const Weather = () => {
     setLocationStatus('detecting');
 
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser. Using Adilabad, Telangana fallback.');
-      setLocationName('Adilabad Forests, Telangana');
-      fetchRealWeather(19.08, 78.27, 'Adilabad Forests, Telangana');
+      setLocationName('Secunderabad, Telangana');
+      fetchRealWeather(17.4399, 78.4983, 'Secunderabad, Telangana');
       return;
     }
 
@@ -155,11 +159,10 @@ const Weather = () => {
       },
       (error) => {
         console.warn('Geolocation permission denied or failed:', error);
-        alert('Location access denied or unavailable. Showing weather for Adilabad, Telangana. You can search any city in the search bar!');
-        setLocationName('Adilabad Forests, Telangana');
-        fetchRealWeather(19.08, 78.27, 'Adilabad Forests, Telangana');
+        setLocationName('Secunderabad, Telangana');
+        fetchRealWeather(17.4399, 78.4983, 'Secunderabad, Telangana');
       },
-      { timeout: 10000, enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 10000 }
     );
   };
 

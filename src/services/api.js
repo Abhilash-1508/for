@@ -272,8 +272,61 @@ export const predictionAPI = {
 //  WEATHER API
 // ═══════════════════════════════════════════════════════════
 
+export const getWeatherCondition = (code) => {
+  if (code === 0) return { text: 'Clear Sky', icon: '☀️', advisoryEn: 'Great weather for forest gathering and sun-drying produce.', advisoryTe: 'అటవీ ఉత్పత్తుల సేకరణ మరియు ఎండబెట్టడానికి మంచి వాతావరణం.' };
+  if (code === 1 || code === 2 || code === 3) return { text: 'Partly Cloudy', icon: '⛅', advisoryEn: 'Mild clouds. Good conditions for collection trip.', advisoryTe: 'తేలికపాటి మేఘాలు. సేకరణ ప్రయాణానికి మంచి వాతావరణం.' };
+  if (code === 45 || code === 48) return { text: 'Foggy / Hazy', icon: '🌫️', advisoryEn: 'Reduced visibility. Exercise caution in dense forest areas.', advisoryTe: 'తక్కువ కాంతి. దట్టమైన అటవీ ప్రాంతాలలో జాగ్రత్తగా ఉండండి.' };
+  if (code >= 51 && code <= 67) return { text: 'Rain & Drizzle', icon: '🌧️', advisoryEn: 'Rain expected. Keep gathered herbs and produce covered.', advisoryTe: 'వర్షం కురిసే అవకాశం ఉంది. సేకరించిన ఉత్పత్తులను కప్పి ఉంచండి.' };
+  if (code >= 71 && code <= 77) return { text: 'Snow / Cold Snap', icon: '❄️', advisoryEn: 'Cold temperatures. Wear warm protective clothing.', advisoryTe: 'చల్లని ఉష్ణోగ్రతలు. వెచ్చని రక్షణ దుస్తులు ధరించండి.' };
+  if (code >= 80 && code <= 82) return { text: 'Showers & Heavy Rain', icon: '🌧️', advisoryEn: 'Heavy rain. Avoid stream crossings and low-lying forest paths.', advisoryTe: 'భారీ వర్షం. వాగులు మరియు ల్యాండ్‌స్లైడ్ ప్రాంతాలకు దూరంగా ఉండండి.' };
+  if (code >= 95) return { text: 'Thunderstorm Alert', icon: '⛈️', advisoryEn: 'Thunderstorm warning! Seek shelter away from tall trees.', advisoryTe: 'ఉరుములు మరియు మెరుపుల హెచ్చరిక! ఎత్తైన చెట్ల కింద నిలబడవద్దు.' };
+  return { text: 'Scattered Showers', icon: '🌦️', advisoryEn: 'High humidity. Protect harvested goods from moisture.', advisoryTe: 'అధిక తేమ. ఉత్పత్తులను తేమ నుండి రక్షించండి.' };
+};
+
 export const weatherAPI = {
-  get: async (lat = '19.08', lon = '78.27') => {
+  getLiveOpenMeteo: async (lat = 17.4399, lon = 78.4983) => {
+    const res = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`
+    );
+    if (!res.ok) throw new Error('Open-Meteo request failed');
+    const data = await res.json();
+    
+    const temperature = Math.round(data.current.temperature_2m);
+    const feelsLike = Math.round(data.current.apparent_temperature);
+    const humidity = data.current.relative_humidity_2m;
+    const windSpeed = Math.round(data.current.wind_speed_10m);
+    const conditionObj = getWeatherCondition(data.current.weather_code);
+
+    return {
+      success: true,
+      weather: {
+        temperature,
+        temp: `${temperature}°C`,
+        feelsLike,
+        feelsLikeText: `${feelsLike}°C`,
+        humidity,
+        humidityText: `${humidity}%`,
+        windSpeed,
+        wind: `${windSpeed} km/h`,
+        condition: `${conditionObj.icon} ${conditionObj.text}`,
+        conditionText: conditionObj.text,
+        conditionIcon: conditionObj.icon,
+        code: data.current.weather_code,
+        advisory: {
+          en: conditionObj.advisoryEn,
+          te: conditionObj.advisoryTe
+        }
+      }
+    };
+  },
+
+  get: async (lat = '17.4399', lon = '78.4983') => {
+    try {
+      const live = await weatherAPI.getLiveOpenMeteo(lat, lon);
+      if (live && live.success) return live;
+    } catch (e) {
+      console.warn('Open-Meteo live fetch failed, using fallback:', e);
+    }
     return await apiCall('get', `/weather?lat=${lat}&lon=${lon}`, null, 'weather');
   }
 };

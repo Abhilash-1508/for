@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { MdLocationOn, MdAccountCircle, MdTrendingUp, MdPhone } from 'react-icons/md';
+import { MdLocationOn, MdAccountCircle, MdTrendingUp, MdPhone, MdShoppingCart } from 'react-icons/md';
+import BuyNowModal from './BuyNowModal';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onBuyNow }) => {
   const { t } = useLanguage();
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+
   if (!product) return null;
 
   const name = product.name || 'Forest Product';
@@ -18,6 +21,14 @@ const ProductCard = ({ product }) => {
   const harvestMonth = product.harvestMonth || product.harvest_month || 'July';
   const image = product.image || null;
   const gradient = product.gradient || 'from-emerald-500 to-emerald-700';
+
+  const handleBuyClick = () => {
+    if (onBuyNow) {
+      onBuyNow(product);
+    } else {
+      setIsBuyModalOpen(true);
+    }
+  };
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full group">
@@ -58,9 +69,19 @@ const ProductCard = ({ product }) => {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
           {/* Seller and Location */}
-          <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold">
-            <MdAccountCircle className="h-4 w-4 text-forest-green flex-shrink-0" />
-            <span className="truncate">{sellerName}</span>
+          <div className="flex items-center justify-between gap-1 text-xs text-gray-500 font-semibold">
+            <div className="flex items-center gap-1.5 truncate">
+              <MdAccountCircle className="h-4 w-4 text-forest-green flex-shrink-0" />
+              <span className="truncate">{sellerName}</span>
+            </div>
+            <a
+              href={`tel:${sellerPhone}`}
+              className="text-forest-green hover:bg-emerald-50 p-1 rounded-lg transition-colors flex items-center gap-0.5 text-[10px] font-bold border border-emerald-100/50"
+              title={t('contactSeller')}
+            >
+              <MdPhone className="h-3.5 w-3.5" />
+              <span>Call</span>
+            </a>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
@@ -91,24 +112,31 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-5 gap-2 pt-1">
+        {/* Dual Action CTA Buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-1">
           <Link
             to={`/product/${product.id || product._id || product.productId}`}
-            className="col-span-3 bg-forest-green hover:bg-forest-dark text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
+            className="border border-emerald-300 text-forest-green hover:bg-emerald-50 text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center"
           >
             {t('viewDetails')}
           </Link>
-          <a
-            href={`tel:${sellerPhone}`}
-            className="col-span-2 border border-emerald-200 text-forest-green hover:bg-emerald-50 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition-colors"
-            title={t('contactSeller')}
+          <button
+            type="button"
+            onClick={handleBuyClick}
+            className="bg-forest-green hover:bg-forest-dark text-white text-center py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-sm hover:shadow flex items-center justify-center gap-1 cursor-pointer"
           >
-            <MdPhone className="h-4 w-4" />
-            <span>Call</span>
-          </a>
+            <MdShoppingCart className="h-4 w-4" />
+            <span>Buy Now</span>
+          </button>
         </div>
       </div>
+
+      {/* Buy Now Modal */}
+      <BuyNowModal
+        product={product}
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+      />
 
     </div>
   );

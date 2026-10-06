@@ -237,15 +237,17 @@ const Schemes = () => {
                       </div>
                     </div>
 
-                    {/* Apply simulation button */}
+                    {/* Official Scheme Portal Link */}
                     <div className="flex justify-end pt-1">
-                      <button
-                        onClick={() => alert(`Redirecting to regional government registration portal for: ${scheme.name}`)}
-                        className="flex items-center gap-1 bg-emerald-50 hover:bg-forest-green text-forest-green hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-emerald-100/50"
+                      <a
+                        href={scheme.url || scheme.officialUrl || 'https://pmvdky.trifed.gov.in'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 bg-emerald-50 hover:bg-forest-green text-forest-green hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-emerald-100/50 cursor-pointer shadow-2xs"
                       >
-                        <span>Apply Online</span>
+                        <span>Apply Online (Official Portal)</span>
                         <MdOutlineArrowForward />
-                      </button>
+                      </a>
                     </div>
 
                   </div>

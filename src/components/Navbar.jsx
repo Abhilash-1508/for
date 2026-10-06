@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { GiOakLeaf } from 'react-icons/gi';
 import { MdDashboard, MdLogout } from 'react-icons/md';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -67,31 +68,8 @@ const Navbar = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            {/* Language Switcher Button (Large pill for accessibility) */}
-            <div className="flex items-center bg-gray-100 p-0.5 rounded-full border border-gray-200">
-              <button
-                onClick={() => setLanguage('en')}
-                className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
-                  language === 'en'
-                    ? 'bg-forest-green text-white shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800'
-                }`}
-                title="Switch to English"
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage('te')}
-                className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
-                  language === 'te'
-                    ? 'bg-forest-green text-white shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800'
-                }`}
-                title="తెలుగులో చదవండి"
-              >
-                తెలుగు
-              </button>
-            </div>
+            {/* Language Selector Dropdown */}
+            <LanguageSelector />
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-2">

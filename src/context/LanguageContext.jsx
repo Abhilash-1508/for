@@ -1,10 +1,10 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const LanguageContext = createContext();
 
 export const translations = {
   en: {
-    // Navbar
+    // Navbar & Navigation
     home: "Home",
     marketplace: "Marketplace",
     pricePrediction: "Price Prediction",
@@ -24,6 +24,7 @@ export const translations = {
     filter: "Filter",
     sortBy: "Sort By",
     viewDetails: "View Details",
+    buyNow: "Buy Now",
     contactSeller: "Contact Seller",
     addProduct: "Add Product",
     myProducts: "My Products",
@@ -31,6 +32,7 @@ export const translations = {
     edit: "Edit",
     delete: "Delete",
     backToMarketplace: "Back to Marketplace",
+    confirmOrder: "Confirm & Place Order",
     
     // Home Page
     heroTitle: "Empowering Forest Communities through Intelligent Technology",
@@ -98,11 +100,19 @@ export const translations = {
     quantity: "Quantity",
     marketPrice: "Market Price",
     predictedPrice: "AI Predicted Price",
+    price: "Price",
     sellerName: "Seller Name",
     sellerContact: "Seller Contact",
     description: "Description",
-    buyNow: "Call to Buy",
     noProducts: "No products found matching your filters.",
+    
+    // Weather Module
+    liveTemperature: "Live Temperature",
+    feelsLike: "Feels Like",
+    humidity: "Relative Humidity",
+    windSpeed: "Wind Speed",
+    refreshWeather: "Refresh Weather",
+    forecast: "5-Day Forecast",
     
     // AI Prediction Page
     predictTitle: "AI Price & Demand Predictor",
@@ -141,7 +151,7 @@ export const translations = {
 
     // Healthcare & Education Pages
     healthcare: "Healthcare",
-    education: "Education",
+    education: "Education & Training",
     healthcareTitle: "Healthcare Guidance",
     educationTitle: "Education & Training",
 
@@ -150,8 +160,167 @@ export const translations = {
     syncingMessage: "Syncing offline data...",
     syncedMessage: "All data synced successfully!"
   },
+
+  hi: {
+    // Navbar & Navigation
+    home: "होम",
+    marketplace: "मार्केटप्लेस",
+    pricePrediction: "मूल्य पूर्वानुमान",
+    schemes: "सरकारी योजनाएं",
+    weather: "मौसम",
+    voiceAssistant: "वॉइस असिस्टेंट",
+    profile: "प्रोफाइल",
+    login: "लॉग इन",
+    register: "पंजीकरण",
+    logout: "लॉग आउट",
+    adminDashboard: "एडमिन डैशबोर्ड",
+    
+    // Buttons & Actions
+    submit: "सबमिट करें",
+    cancel: "रद्द करें",
+    search: "खोजें",
+    filter: "फ़िल्टर",
+    sortBy: "क्रमबद्ध करें",
+    viewDetails: "विवरण देखें",
+    buyNow: "अभी खरीदें",
+    contactSeller: "विक्रेता से संपर्क करें",
+    addProduct: "उत्पाद जोड़ें",
+    myProducts: "मेरे उत्पाद",
+    upload: "अपलोड",
+    edit: "संपादित करें",
+    delete: "हटाएं",
+    backToMarketplace: "मार्केटप्लेस पर वापस जाएं",
+    confirmOrder: "पुष्टि करें और ऑर्डर दें",
+    
+    // Home Page
+    heroTitle: "बुद्धिमान तकनीक के माध्यम से वन समुदायों का सशक्तिकरण",
+    heroSubtitle: "आपकी पसंदीदा भाषा में सीधी बाजार पहुंच, एआई-संचालित मूल्य पूर्वानुमान, मौसम अपडेट और व्यक्तिगत सरकारी योजनाएं।",
+    getStarted: "शुरू करें",
+    learnMore: "और जानें",
+    aboutTitle: "फॉरेस्टकनेक्ट एआई के बारे में",
+    aboutText1: "फॉरेस्टकनेक्ट एआई डिजिटल विभाजन को पाटकर जनजातीय और वन-आधारित समुदायों की आजीविका में सुधार के लिए डिज़ाइन किया गया एक डिजिटल प्लेटफॉर्म है।",
+    aboutText2: "बिचौलियों को दरकिनार करते हुए संग्रहकर्ताओं को सीधे खरीदारों को शहद, बांस, आंवला और जड़ी-बूटियों जैसी वन उपज बेचने में मदद करता है।",
+    featuresTitle: "प्रमुख विशेषताएं",
+    featureMarketplaceTitle: "प्रत्यक्ष मार्केटप्लेस",
+    featureMarketplaceDesc: "उचित, मानकीकृत दरों पर सीधे वन उपज सूचीबद्ध करें और बेचें।",
+    featurePredictionTitle: "एआई मूल्य पूर्वानुमान",
+    featurePredictionDesc: "एमएल का उपयोग करके मौसमी उत्पाद मांग और इष्टतम बाजार बिक्री समय का अनुमान लगाएं।",
+    featureSchemesTitle: "योजना सलाहकार",
+    featureSchemesDesc: "अपनी प्रोफ़ाइल के लिए व्यक्तिगत सरकारी कल्याणकारी और सब्सिडी कार्यक्रम खोजें।",
+    featureVoiceTitle: "वॉइस असिस्टेंट",
+    featureVoiceDesc: "स्थानीय भाषाओं में आवाज का उपयोग करके आसानी से नेविगेट करें।",
+    contactTitle: "संपर्क करें",
+    contactName: "पूरा नाम",
+    contactEmail: "ईमेल पता",
+    contactMessage: "संदेश",
+    contactSend: "संदेश भेजें",
+    
+    // Login & Register Pages
+    loginTitle: "वापसी पर स्वागत है",
+    loginSubtitle: "अपने डैशबोर्ड तक पहुंचने के लिए साइन इन करें",
+    emailOrMobile: "मोबाइल नंबर या ईमेल",
+    password: "पासवर्ड",
+    confirmPassword: "पासवर्ड की पुष्टि करें",
+    rememberMe: "मुझे याद रखें",
+    forgotPassword: "पासवर्ड भूल गए?",
+    noAccount: "खाता नहीं है? पंजीकरण करें",
+    alreadyAccount: "क्या आपके पास पहले से खाता है?",
+    registerTitle: "खाता बनाएं",
+    registerSubtitle: "वन समुदाय मार्केटप्लेस में शामिल हों",
+    fullName: "पूरा नाम",
+    mobileNumber: "मोबाइल नंबर",
+    emailAddress: "ईमेल पता (वैकल्पिक)",
+    village: "गांव",
+    district: "जिला",
+    state: "राज्य",
+    preferredLanguage: "पसंदीदा भाषा",
+    registerBtn: "अभी पंजीकरण करें",
+    
+    // Dashboard Page
+    welcome: "स्वागत है",
+    dashboardTitle: "आपकी आजीविका डैशबोर्ड",
+    weatherSummary: "आज का मौसम",
+    priceTrend: "एआई मूल्य पूर्वानुमान",
+    schemesSummary: "पात्र कल्याणकारी योजनाएं",
+    profileSummary: "प्रोफ़ाइल सारांश",
+    location: "स्थान",
+    activeUploads: "सक्रिय अपलोड",
+    predictedTrendText: "बाजार मूल्य वर्तमान में स्थिर हैं। बेचने का सबसे अच्छा समय: जुलाई के अंत में।",
+    
+    // Marketplace & Details Page
+    searchPlaceholder: "शहद, बांस, जड़ी-बूटियां खोजें...",
+    allCategories: "सभी श्रेणियां",
+    honey: "शहद",
+    bamboo: "बांस",
+    herbs: "औषधीय जड़ी-बूटियाँ",
+    fruits: "वन फल",
+    handicrafts: "हस्तशिल्प",
+    quantity: "मात्रा",
+    marketPrice: "बाजार मूल्य",
+    predictedPrice: "एआई अनुमानित मूल्य",
+    price: "मूल्य",
+    sellerName: "विक्रेता का नाम",
+    sellerContact: "विक्रेता संपर्क",
+    description: "विवरण",
+    noProducts: "आपके फ़िल्टर से मेल खाने वाला कोई उत्पाद नहीं मिला।",
+    
+    // Weather Module
+    liveTemperature: "लाइव तापमान",
+    feelsLike: "महसूस होता है",
+    humidity: "सापेक्ष आर्द्रता",
+    windSpeed: "हवा की गति",
+    refreshWeather: "मौसम रीफ़्रेश करें",
+    forecast: "5-दिन का पूर्वानुमान",
+    
+    // AI Prediction Page
+    predictTitle: "एआई मूल्य और मांग पूर्वानुमानक",
+    predictSubtitle: "उपज मूल्य निर्धारण का अनुमान लगाने के लिए पैरामीटर चुनें",
+    selectProduct: "वन उपज चुनें",
+    enterQuantity: "मात्रा (किग्रा/नग में)",
+    selectMonth: "बिक्री का महीना",
+    predictBtn: "पूर्वानुमान की गणना करें",
+    resultExpectedPrice: "अपेक्षित बाजार मूल्य",
+    resultDemand: "अपेक्षित मांग स्तर",
+    resultBestTime: "सर्वोत्तम बिक्री समय",
+    high: "उच्च",
+    medium: "मध्यम",
+    low: "कम",
+    
+    // Government Schemes Page
+    schemesTitle: "सरकारी योजनाएं पोर्टल",
+    schemesSubtitle: "उन कल्याणकारी योजनाओं को खोजें जिनके लिए आप योग्य हैं",
+    inputAge: "आयु",
+    inputOccupation: "व्यवसाय",
+    inputIncome: "वार्षिक आय (₹)",
+    inputState: "राज्य",
+    findSchemesBtn: "पात्र योजनाएं खोजें",
+    schemeEligibility: "पात्रता",
+    schemeBenefits: "प्रमुख लाभ",
+    applyNow: "आवेदन कैसे करें",
+    
+    // Voice Assistant Page
+    voiceTitle: "वॉइस असिस्टेंट पोर्टल",
+    voiceSubtitle: "आवाज का उपयोग करके नेविगेट करने के लिए माइक दबाएं",
+    voicePrompt: "दबाएं और बोलें (उदा. 'मुझे बाजार भाव दिखाएं')",
+    listening: "सुन रहे हैं... अब बोलें।",
+    processing: "आवाज इनपुट संसाधित किया जा रहा है...",
+    assistantGreeting: "नमस्ते! आज मैं आपकी वन उपज प्रबंधित करने में कैसे मदद कर सकता हूं?",
+    voiceResponse: "मुझे आपके लिए पीएम वन धन योजना सहित 3 पात्र योजनाएं मिली हैं।",
+
+    // Healthcare & Education Pages
+    healthcare: "स्वास्थ्य सेवा",
+    education: "शिक्षा और प्रशिक्षण",
+    healthcareTitle: "स्वास्थ्य सेवा मार्गदर्शन",
+    educationTitle: "शिक्षा और प्रशिक्षण",
+
+    // Offline
+    offlineMessage: "आप ऑफ़लाइन हैं। कनेक्शन वापस आने पर डेटा सिंक हो जाएगा।",
+    syncingMessage: "ऑफ़लाइन डेटा सिंक हो रहा है...",
+    syncedMessage: "सभी डेटा सफलतापूर्वक सिंक हो गया!"
+  },
+
   te: {
-    // Navbar
+    // Navbar & Navigation
     home: "హోమ్",
     marketplace: "మార్కెట్‌ప్లేస్",
     pricePrediction: "ధర అంచనా",
@@ -171,6 +340,7 @@ export const translations = {
     filter: "ఫిల్టర్",
     sortBy: "క్రమబద్ధీకరించు",
     viewDetails: "వివరాలు చూడు",
+    buyNow: "ఇప్పుడే కొనండి",
     contactSeller: "విక్రేతను సంప్రదించండి",
     addProduct: "ఉత్పత్తిని జోడించు",
     myProducts: "నా ఉత్పత్తులు",
@@ -178,6 +348,7 @@ export const translations = {
     edit: "సవరించు",
     delete: "తొలగించు",
     backToMarketplace: "తిరిగి మార్కెట్‌ప్లేస్ కి",
+    confirmOrder: "ఆర్డర్‌ను నిర్ధారించండి",
     
     // Home Page
     heroTitle: "ఇంటెలిజెంట్ టెక్నాలజీ ద్వారా అటవీ సంఘాల సాధికారత",
@@ -245,11 +416,19 @@ export const translations = {
     quantity: "పరిమాణం",
     marketPrice: "మార్కెట్ ధర",
     predictedPrice: "AI అంచనా ధర",
+    price: "ధర",
     sellerName: "విక్రేత పేరు",
     sellerContact: "విక్రేత సంప్రదింపు",
     description: "వివరణ",
-    buyNow: "కొనడానికి కాల్ చేయండి",
     noProducts: "మీ ఫిల్టర్‌లకు సరిపోయే ఉత్పత్తులు ఏవీ కనుగొనబడలేదు.",
+    
+    // Weather Module
+    liveTemperature: "లైవ్ ఉష్ణోగ్రత",
+    feelsLike: "అనిపించే ఉష్ణోగ్రత",
+    humidity: "తేమ శాతము",
+    windSpeed: "గాలి వేగం",
+    refreshWeather: "వాతావరణం రీఫ్రెష్ చేయండి",
+    forecast: "5-రోజుల అంచనా",
     
     // AI Prediction Page
     predictTitle: "AI ధర & డిమాండ్ అంచనా",
@@ -300,10 +479,24 @@ export const translations = {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en'); // Default to English
+  const [language, setLanguageState] = useState(() => {
+    try {
+      return localStorage.getItem('fc_language') || 'en';
+    } catch {
+      return 'en';
+    }
+  });
+
+  const setLanguage = (lang) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('fc_language', lang);
+    } catch {}
+  };
 
   const t = (key) => {
-    return translations[language][key] || translations['en'][key] || key;
+    const langDict = translations[language] || translations['en'];
+    return langDict[key] || translations['en'][key] || key;
   };
 
   return (
