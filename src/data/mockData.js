@@ -161,8 +161,13 @@ export const SCHEMES = [
     eligibility: "Tribal gatherers, members of Van Dhan Self-Help Groups (SHGs) and forest cooperatives.",
     benefits: "Financial grant of ₹15 Lakhs per Van Dhan Vikas Kendra (300 members) for value addition tools, solar dryers, packaging machinery, and skill training.",
     applyProcedure: "Form a Self-Help Group of 15-20 gatherers and register via District Nodal Officer or TRIFED PMVDY Portal.",
-    url: "https://pmvdky.trifed.gov.in",
-    tag: "Livelihood"
+    url: "https://trifed.tribal.gov.in/pmvdy",
+    applyUrl: "https://trifed.tribal.gov.in/pmvdy",
+    tag: "Livelihood",
+    eligibleOccupations: ["all", "gatherer", "farmer", "artisan", "shg_member"],
+    maxIncome: 300000,
+    minAge: 18,
+    maxAge: 70
   },
   {
     id: "s2",
@@ -173,8 +178,13 @@ export const SCHEMES = [
     eligibility: "All registered tribal forest gatherers selling declared Minor Forest Produce items.",
     benefits: "Floor price protection for 87+ notified minor forest products (Honey, Amla, Mahua, Tamarind, Karaya Gum). Direct bank transfer (DBT) to eliminate middleman exploitation.",
     applyProcedure: "Register with the local Primary Procurement Center run by GCC (Girijan Co-operative Corporation) or Forest Department.",
-    url: "https://trifed.tribal.gov.in/msp-for-mfp",
-    tag: "Financial Support"
+    url: "https://trifed.tribal.gov.in",
+    applyUrl: "https://trifed.tribal.gov.in",
+    tag: "Financial Support",
+    eligibleOccupations: ["all", "gatherer", "farmer", "artisan"],
+    maxIncome: 500000,
+    minAge: 18,
+    maxAge: 80
   },
   {
     id: "s3",
@@ -185,8 +195,13 @@ export const SCHEMES = [
     eligibility: "Tribal gatherers in Telangana & Andhra Pradesh forest regions.",
     benefits: "Guaranteed door-step fair price procurement of forest produce, prompt cash/digital payment, micro-credit access, and seasonal advance payouts.",
     applyProcedure: "Enroll at your nearest GCC Divisional Office or Primary Marketing Society with Aadhar & Bank Passbook.",
-    url: "https://girijan.telangana.gov.in",
-    tag: "State Guarantee"
+    url: "https://forests.telangana.gov.in",
+    applyUrl: "https://forests.telangana.gov.in",
+    tag: "State Guarantee",
+    eligibleOccupations: ["all", "gatherer", "farmer", "artisan"],
+    maxIncome: 350000,
+    minAge: 18,
+    maxAge: 75
   },
   {
     id: "s4",
@@ -198,7 +213,12 @@ export const SCHEMES = [
     benefits: "Comprehensive electrification, Pucca housing (PMAY-G), clean drinking water pipelines, mobile medical units, and VDVK multi-purpose facility centers.",
     applyProcedure: "Applications processed through District Tribal Welfare Nodal Officers and Gram Sabha enumeration camps.",
     url: "https://tribal.gov.in/PMJANMAN.aspx",
-    tag: "Priority Mission"
+    applyUrl: "https://tribal.gov.in/PMJANMAN.aspx",
+    tag: "Priority Mission",
+    eligibleOccupations: ["all", "gatherer", "farmer", "artisan", "student", "shg_member"],
+    maxIncome: 250000,
+    minAge: 0,
+    maxAge: 100
   },
   {
     id: "s5",
@@ -210,7 +230,12 @@ export const SCHEMES = [
     benefits: "Listing and direct sale of products on Tribes India retail outlets, Amazon, Flipkart, and GeM portal with zero platform commission for tribal producers.",
     applyProcedure: "Submit sample products and SHG certification to regional TRIFED office for quality auditing and cataloging.",
     url: "https://tribesindia.com",
-    tag: "Market Linkage"
+    applyUrl: "https://tribesindia.com",
+    tag: "Market Linkage",
+    eligibleOccupations: ["all", "gatherer", "farmer", "artisan", "shg_member"],
+    maxIncome: 500000,
+    minAge: 18,
+    maxAge: 70
   },
   {
     id: "s6",
@@ -222,7 +247,12 @@ export const SCHEMES = [
     benefits: "Concessional loans up to ₹10 Lakhs for setting up agro-processing units, bamboo workshops, and forest produce value-addition business with interest rate as low as 6% p.a.",
     applyProcedure: "Apply through State Channelizing Agencies (SCA) or Scheduled Commercial Banks handling tribal welfare funds.",
     url: "https://nstfdc.tribal.gov.in",
-    tag: "Low Interest Loan"
+    applyUrl: "https://nstfdc.tribal.gov.in",
+    tag: "Low Interest Loan",
+    eligibleOccupations: ["all", "gatherer", "farmer", "artisan", "shg_member"],
+    maxIncome: 300000,
+    minAge: 18,
+    maxAge: 65
   },
   {
     id: "s7",
@@ -234,7 +264,12 @@ export const SCHEMES = [
     benefits: "100% free quality boarding education, uniforms, textbooks, computer labs, sports coaching, and full pre/post-matric scholarship grants.",
     applyProcedure: "Apply online via National Scholarship Portal (NSP) or State EMRS Admission Entrance Portal.",
     url: "https://emrs.tribal.gov.in",
-    tag: "Education Welfare"
+    applyUrl: "https://emrs.tribal.gov.in",
+    tag: "Education Welfare",
+    eligibleOccupations: ["all", "student"],
+    maxIncome: 250000,
+    minAge: 10,
+    maxAge: 25
   }
 ];
 
