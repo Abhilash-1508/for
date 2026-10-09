@@ -35,7 +35,7 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-stone-900 rounded-3xl border border-gray-100 dark:border-stone-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-full w-full max-w-full group">
+    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-full w-full max-w-full group">
       
       {/* Visual Product representation */}
       <div 
@@ -77,7 +77,7 @@ const ProductCard = ({ product }) => {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2.5">
           {/* Seller and Location */}
-          <div className="flex items-center justify-between gap-1 text-xs text-stone-500 dark:text-stone-400 font-semibold">
+          <div className="flex items-center justify-between gap-1 text-xs text-stone-500 font-semibold">
             <div className="flex items-center gap-1.5 min-w-0">
               <MdAccountCircle className="h-4 w-4 text-forest-green flex-shrink-0" />
               <span className="truncate">{sellerName}</span>
@@ -85,7 +85,7 @@ const ProductCard = ({ product }) => {
             <a
               href={`tel:${sellerPhone}`}
               onClick={(e) => e.stopPropagation()}
-              className="text-forest-green dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 p-1 px-2 rounded-lg transition-colors flex items-center gap-1 text-[10px] font-bold border border-emerald-100 dark:border-emerald-800 shrink-0"
+              className="text-forest-green hover:bg-emerald-50 p-1 px-2 rounded-lg transition-colors flex items-center gap-1 text-[10px] font-bold border border-emerald-100 shrink-0"
               title={t('contactSeller')}
             >
               <MdPhone className="h-3.5 w-3.5" />
@@ -93,31 +93,31 @@ const ProductCard = ({ product }) => {
             </a>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium">
-            <MdLocationOn className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 font-medium">
+            <MdLocationOn className="h-4 w-4 text-emerald-600 flex-shrink-0" />
             <span className="truncate">{location}</span>
           </div>
 
           {/* Quantity pill */}
           <div className="pt-1">
-            <span className="bg-gray-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold text-xs px-2.5 py-1 rounded-lg inline-block">
+            <span className="bg-gray-100 text-stone-700 font-bold text-xs px-2.5 py-1 rounded-lg inline-block">
               {t('quantity')}: {quantity}
             </span>
           </div>
         </div>
 
         {/* Pricing Layout */}
-        <div className="bg-sage-accent/40 dark:bg-stone-800/60 rounded-2xl p-3 border border-emerald-100/30 dark:border-stone-700 grid grid-cols-2 gap-2 text-center mt-auto">
+        <div className="bg-sage-accent/40 rounded-2xl p-3 border border-emerald-100/30 grid grid-cols-2 gap-2 text-center mt-auto">
           <div>
-            <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide">{t('marketPrice')}</p>
-            <p className="text-sm font-extrabold text-stone-800 dark:text-stone-200">₹{marketPrice}</p>
+            <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">{t('marketPrice')}</p>
+            <p className="text-sm font-extrabold text-stone-800">₹{marketPrice}</p>
           </div>
-          <div className="border-l border-emerald-100/50 dark:border-stone-700 flex flex-col justify-center items-center">
-            <div className="flex items-center gap-0.5 text-forest-green dark:text-emerald-400">
+          <div className="border-l border-emerald-100/50 flex flex-col justify-center items-center">
+            <div className="flex items-center gap-0.5 text-forest-green">
               <MdTrendingUp className="h-3.5 w-3.5" />
               <p className="text-[10px] font-bold uppercase tracking-wide">{t('predictedPrice')}</p>
             </div>
-            <p className="text-sm font-extrabold text-forest-green dark:text-emerald-400">₹{predictedPrice}</p>
+            <p className="text-sm font-extrabold text-forest-green">₹{predictedPrice}</p>
           </div>
         </div>
 
@@ -125,7 +125,7 @@ const ProductCard = ({ product }) => {
         <div className="grid grid-cols-2 gap-2 pt-1">
           <Link
             to={`/product/${productId}`}
-            className="border border-emerald-300 dark:border-emerald-700 text-forest-green dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center cursor-pointer"
+            className="border border-emerald-300 text-forest-green hover:bg-emerald-50 text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center cursor-pointer"
           >
             {t('viewDetails')}
           </Link>

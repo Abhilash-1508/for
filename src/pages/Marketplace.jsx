@@ -87,7 +87,7 @@ const Marketplace = () => {
   });
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden min-h-screen flex flex-col bg-bg-forest dark:bg-stone-950">
+    <div className="w-full max-w-full overflow-x-hidden min-h-screen flex flex-col bg-bg-forest">
       <Navbar />
 
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8 overflow-x-hidden">
@@ -101,13 +101,13 @@ const Marketplace = () => {
           {/* Header Description */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-extrabold text-stone-900 dark:text-white font-display">{t('marketplace')}</h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400 font-semibold mt-1">Direct community trade portal for Minor Forest Produce (MFP)</p>
+              <h2 className="text-2xl font-extrabold text-stone-900 font-display">{t('marketplace')}</h2>
+              <p className="text-xs text-stone-500 font-semibold mt-1">Direct community trade portal for Minor Forest Produce (MFP)</p>
             </div>
             
             <button
               onClick={handleResetFilters}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:text-forest-green dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-stone-800 rounded-xl text-xs font-bold transition-all self-start sm:self-auto cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-200 text-stone-600 hover:text-forest-green hover:bg-gray-50 rounded-xl text-xs font-bold transition-all self-start sm:self-auto cursor-pointer"
             >
               <MdRefresh className="h-4 w-4" />
               <span>Reset Filters</span>
@@ -115,7 +115,7 @@ const Marketplace = () => {
           </div>
 
           {/* Search, Filter & Sort Controls */}
-          <div className="bg-white dark:bg-stone-900 rounded-3xl border border-gray-100 dark:border-stone-800 p-5 shadow-sm space-y-4 w-full">
+          <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm space-y-4 w-full">
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full">
               
               {/* Search Field */}
@@ -127,7 +127,7 @@ const Marketplace = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-stone-800 border border-gray-200 dark:border-stone-700 text-stone-900 dark:text-white rounded-xl pl-11 pr-4 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-forest-green transition-all"
+                  className="w-full bg-gray-50 border border-gray-200 text-stone-900 rounded-xl pl-11 pr-4 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-forest-green transition-all"
                   placeholder={t('searchPlaceholder')}
                 />
               </div>
@@ -140,7 +140,7 @@ const Marketplace = () => {
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-stone-800 border border-gray-200 dark:border-stone-700 text-stone-900 dark:text-white rounded-xl pl-11 pr-8 py-3 text-xs font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-forest-green transition-all appearance-none"
+                  className="w-full bg-gray-50 border border-gray-200 text-stone-900 rounded-xl pl-11 pr-8 py-3 text-xs font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-forest-green transition-all appearance-none"
                 >
                   <option value="all">Region: All</option>
                   {uniqueLocations.filter(loc => loc !== 'all').map(loc => (
@@ -157,7 +157,7 @@ const Marketplace = () => {
                 <select
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-stone-800 border border-gray-200 dark:border-stone-700 text-stone-900 dark:text-white rounded-xl pl-11 pr-8 py-3 text-xs font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-forest-green transition-all appearance-none"
+                  className="w-full bg-gray-50 border border-gray-200 text-stone-900 rounded-xl pl-11 pr-8 py-3 text-xs font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-forest-green transition-all appearance-none"
                 >
                   <option value="default">{t('sortBy')}: Default</option>
                   <option value="price-low">Price: Low to High</option>
@@ -169,7 +169,7 @@ const Marketplace = () => {
             </div>
 
             {/* Category Filter Pills Row */}
-            <div className="border-t border-gray-100 dark:border-stone-800 pt-4">
+            <div className="border-t border-gray-100 pt-4">
               <div className="flex flex-wrap items-center gap-2 w-full">
                 {CATEGORIES.map(category => (
                   <button
@@ -178,7 +178,7 @@ const Marketplace = () => {
                     className={`px-3.5 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
                       selectedCategory === category.id
                         ? 'bg-forest-green text-white shadow-sm'
-                        : 'bg-gray-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-gray-100 dark:hover:bg-stone-700'
+                        : 'bg-gray-50 text-stone-600 hover:bg-gray-100'
                     }`}
                   >
                     {t(category.labelKey)}
@@ -191,7 +191,7 @@ const Marketplace = () => {
 
           {/* Product Grid */}
           {loading ? (
-            <div className="bg-white dark:bg-stone-900 border border-gray-100 dark:border-stone-800 rounded-3xl p-12 text-center flex flex-col items-center justify-center space-y-4">
+            <div className="bg-white border border-gray-100 rounded-3xl p-12 text-center flex flex-col items-center justify-center space-y-4">
               <div className="w-10 h-10 border-4 border-forest-green border-t-transparent rounded-full animate-spin"></div>
               <p className="text-sm text-stone-500 font-semibold">Loading marketplace...</p>
             </div>
@@ -202,13 +202,13 @@ const Marketplace = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-white dark:bg-stone-900 border border-gray-100 dark:border-stone-800 rounded-3xl space-y-4 p-6 shadow-sm">
+            <div className="text-center py-16 bg-white border border-gray-100 rounded-3xl space-y-4 p-6 shadow-sm">
               <span className="text-4xl block">🔍</span>
-              <h3 className="font-bold text-lg text-stone-800 dark:text-stone-100 font-display">No Products Found</h3>
+              <h3 className="font-bold text-lg text-stone-800 font-display">No Products Found</h3>
               <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">{t('noProducts')}</p>
               <button
                 onClick={handleResetFilters}
-                className="mt-2 bg-emerald-50 text-forest-green dark:bg-emerald-950 dark:text-emerald-300 hover:bg-forest-green hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-emerald-100/50 cursor-pointer"
+                className="mt-2 bg-emerald-50 text-forest-green hover:bg-forest-green hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-emerald-100/50 cursor-pointer"
               >
                 Clear Filters
               </button>
